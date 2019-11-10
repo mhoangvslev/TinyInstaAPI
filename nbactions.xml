@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-Run on local server</actionName>
+            <displayName>Run on local server</displayName>
+            <goals>
+                <goal>appengine:run</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-Invoke Endpoints Frameworks tool</actionName>
+            <displayName>Invoke Endpoints Frameworks tool</displayName>
+            <goals>
+                <goal>endpoints-framework:openApiDocs</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-Deploy the OpenAPI configuration file</actionName>
+            <displayName>Deploy the OpenAPI configuration file</displayName>
+            <goals>
+                <goal>gcloud</goal>
+                <goal>endpoints</goal>
+                <goal>services</goal>
+                <goal>deploy</goal>
+                <goal>target/openapi-docs/openapi.json</goal>
+            </goals>
+        </action>
+    </actions>
