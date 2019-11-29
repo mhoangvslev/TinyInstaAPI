@@ -1,0 +1,3 @@
+[submodule "src/main/webapp/TinyInstagram"]
+	path = src/main/webapp/TinyInstagram
+	url = https://github.com/mhoangvslev/TinyInstagram
