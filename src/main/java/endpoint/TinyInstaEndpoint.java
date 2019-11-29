@@ -22,6 +22,7 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.DefaultValue;
 import com.google.api.server.spi.config.Named;
 import com.googlecode.objectify.Key;
+import entity.Message;
 import entity.User;
 import java.util.Collection;
 import javax.annotation.Nullable;
@@ -32,10 +33,20 @@ import repository.UserRepository;
 public class TinyInstaEndpoint {
 
     // Test
-    /*@ApiMethod(name = "hello", httpMethod = HttpMethod.GET, path = "hello")
-    public String hello() {
-        return "Hello world\n";
-    }*/
+    @ApiMethod(name = "hello1", httpMethod = HttpMethod.GET, path = "hello")
+    public Message hello1() {
+        return new Message("Hello world!");
+    }
+
+    @ApiMethod(name = "hello2", httpMethod = HttpMethod.GET, path = "hello2")
+    public Message hello2(@Nullable @Named("name") @DefaultValue("world") String name) {
+        return new Message("Hello " + name + "!");
+    }
+
+    @ApiMethod(name = "hello3", httpMethod = HttpMethod.GET, path = "hello/hello3/{name}")
+    public Message hello3(@Named("name") String name) {
+        return new Message("Hello " + name + "!");
+    }
 
     // USER
     @ApiMethod(name = "getUser", httpMethod = HttpMethod.GET, path = "user/{username}")
@@ -48,9 +59,10 @@ public class TinyInstaEndpoint {
         return UserRepository.getInstance().getAllUser(limit);
     }
 
-    @ApiMethod(name = "register", httpMethod = HttpMethod.POST, path = "user/register/{username}")
-    public Key<User> register(@Named("username") String username) {
-        return UserRepository.getInstance().createUser(new User(username));
+    @ApiMethod(name = "register", httpMethod = HttpMethod.GET, path = "user/register/{username}")
+    public User register(@Named("username") String username) {
+        User newUser = new User(username);
+        return UserRepository.getInstance().createUser(newUser);
     }
 
     @ApiMethod(name = "follow", httpMethod = HttpMethod.PUT, path = "user/{user}/follow/{target}")

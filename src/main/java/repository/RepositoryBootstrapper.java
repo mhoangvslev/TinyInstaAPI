@@ -15,6 +15,7 @@
  */
 package repository;
 
+import com.google.appengine.api.utils.SystemProperty;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
@@ -30,19 +31,22 @@ public class RepositoryBootstrapper implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        /*ObjectifyService.init(new ObjectifyFactory(
-                DatastoreOptions.newBuilder()
-                        .setHost("http://localhost:8080")
-                        .setProjectId("tinyinstagram")
-                        .build()
-                        .getService()
-        ));*/
-        
-        ObjectifyService.init();
-        
+
+        if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
+            ObjectifyService.init();
+        } else {
+            ObjectifyService.init(new ObjectifyFactory(
+                    DatastoreOptions.newBuilder()
+                            .setHost("http://localhost:8484")
+                            .setProjectId("tinyinstagram")
+                            .build()
+                            .getService()
+            ));
+        }
+
         // Register all classes
         ObjectifyService.register(User.class);
-        
+
         // Begin
         ObjectifyService.begin();
     }

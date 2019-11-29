@@ -59,8 +59,9 @@ public class UserRepository {
     }
 
     // POST
-    public Key<User> createUser(User u) {
-        return save().entity(u).now();
+    public User createUser(User u) {
+        save().entity(u).now();
+        return u;
     }
 
     // PUT

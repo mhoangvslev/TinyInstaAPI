@@ -47,10 +47,12 @@
     </filter-mapping>
     <!-- [START api_management] -->
     <!-- Add a filter that fetches the service config from service management. -->
+    <!--
     <filter>
         <filter-name>endpoints-api-configuration</filter-name>
         <filter-class>com.google.api.control.ServiceManagementConfigFilter</filter-class>
     </filter>
+    -->
     
     <!-- Add a filter that performs Endpoints logging and monitoring. -->
     <filter>
@@ -66,10 +68,12 @@
         </init-param>
     </filter>
 
+    <!--
     <filter-mapping>
         <filter-name>endpoints-api-configuration</filter-name>
         <servlet-name>EndpointsServlet</servlet-name>
     </filter-mapping>
+    -->
 
     <filter-mapping>
         <filter-name>endpoints-api-controller</filter-name>
