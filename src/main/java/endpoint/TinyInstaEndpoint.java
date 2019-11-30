@@ -23,10 +23,12 @@ import com.google.api.server.spi.config.DefaultValue;
 import com.google.api.server.spi.config.Named;
 import com.googlecode.objectify.Key;
 import entity.Message;
+import entity.Post;
 import entity.User;
 import java.util.Collection;
 import javax.annotation.Nullable;
 
+import repository.PostRepository;
 import repository.UserRepository;
 
 @Api(name = "tinyinsta", version = "v1", namespace = @ApiNamespace(ownerDomain = "tinyinsta.example.com", ownerName = "tinyinsta.example.com", packagePath = "services"))
@@ -60,7 +62,7 @@ public class TinyInstaEndpoint {
     }
 
     @ApiMethod(name = "register", httpMethod = HttpMethod.GET, path = "user/register/{username}")
-    public User register(@Named("username") String username) {
+    public User register(@Named("username") String username){
         User newUser = new User(username);
         return UserRepository.getInstance().createUser(newUser);
     }
@@ -95,5 +97,17 @@ public class TinyInstaEndpoint {
         return user;
     }
 
+    @ApiMethod(name = "createPost", httpMethod = HttpMethod.GET, path = "post/create/{data}")
+    public Post createPost(Post data){
+        return PostRepository.getInstance().createPost(data);
+    }
+
     // POSTS
+
+    @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all/")
+    public Collection<Post> getAllPosts(@Nullable @Named("limit") @DefaultValue("50") int limit) {
+        return PostRepository.getInstance().getAllPost(limit);
+    }
+
+
 }

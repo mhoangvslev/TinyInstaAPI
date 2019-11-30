@@ -78,7 +78,6 @@ public class UserRepository {
             target.setFollowers(update.getFollowers());
             target.setFollowing(update.getFollowing());
             target.setAvatarURL(update.getAvatarURL());
-
             return save().entity(target).now();
         }
         return null;

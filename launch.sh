@@ -15,3 +15,4 @@ gcloud components update
 
 echo "Runiing locally the server..."
 mvn appengine:run
+
