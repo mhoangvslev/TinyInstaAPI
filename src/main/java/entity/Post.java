@@ -2,12 +2,11 @@
  *
  * @author acoussea
  */
-
 package entity;
 
-import java.util.ArrayList;
 import com.googlecode.objectify.annotation.*;
 import java.util.Date;
+import java.util.HashSet;
 
 @Entity
 public class Post {
@@ -17,7 +16,7 @@ public class Post {
 
     private String imageUrl;
     private String caption;
-    private ArrayList<User> likedBy;
+    private HashSet<Long> likedBy;
 
     @Index
     private Date date;
@@ -25,12 +24,15 @@ public class Post {
     @Index
     private Long postedBy;
 
+    public Post() {
+    }
+
     public Post(String imageUrl, String caption, Long postedBy) {
         this.imageUrl = imageUrl;
         this.caption = caption;
-        this.likedBy = new ArrayList<>();
-        this.date = new Date();
         this.postedBy = postedBy;
+        this.date = new Date();
+        this.likedBy = new HashSet<>();
     }
 
     public Long getPostId() {
@@ -45,11 +47,11 @@ public class Post {
         return caption;
     }
 
-    public ArrayList<User> getLikedBy() {
+    public HashSet<Long> getLikedBy() {
         return likedBy;
     }
 
-    public void addLike(User u){
+    public void addLike(Long u) {
         this.likedBy.add(u);
     }
 
@@ -73,7 +75,7 @@ public class Post {
         this.caption = caption;
     }
 
-    public void setLikedBy(ArrayList<User> likedBy) {
+    public void setLikedBy(HashSet<Long> likedBy) {
         this.likedBy = likedBy;
     }
 
@@ -85,15 +87,9 @@ public class Post {
         this.postedBy = postedBy;
     }
 
-    @Override
-    public String toString() {
-        return "Post{" +
-                "postId='" + postId + '\'' +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", caption='" + caption + '\'' +
-                ", likedBy=" + likedBy +
-                ", date=" + date +
-                ", postedBy=" + postedBy +
-                '}';
+    public String stringify() {
+        String id = postId == null ? "decoy" : postId.toString();
+        return "Post{" + "postId=" + id + ", imageUrl=" + imageUrl + ", caption=" + caption + ", likedBy=" + likedBy.size() + ", date=" + date + ", postedBy=" + postedBy + '}';
     }
+
 }

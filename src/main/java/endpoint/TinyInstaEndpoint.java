@@ -21,11 +21,12 @@ import com.google.api.server.spi.config.ApiMethod.HttpMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.DefaultValue;
 import com.google.api.server.spi.config.Named;
-import com.googlecode.objectify.Key;
 import entity.Message;
 import entity.Post;
 import entity.User;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import repository.PostRepository;
@@ -33,6 +34,8 @@ import repository.UserRepository;
 
 @Api(name = "tinyinsta", version = "v1", namespace = @ApiNamespace(ownerDomain = "tinyinsta.example.com", ownerName = "tinyinsta.example.com", packagePath = "services"))
 public class TinyInstaEndpoint {
+
+    private static final Logger logger = Logger.getLogger(TinyInstaEndpoint.class.getName());
 
     // Test
     @ApiMethod(name = "hello1", httpMethod = HttpMethod.GET, path = "hello")
@@ -51,24 +54,44 @@ public class TinyInstaEndpoint {
     }
 
     // USER
-    @ApiMethod(name = "getUser", httpMethod = HttpMethod.GET, path = "user/{username}")
-    public Collection<User> getUser(@Named("username") String username, @Nullable @Named("limit") @DefaultValue("50") int limit) {
-        return UserRepository.getInstance().getUserByName(username, limit);
+    @ApiMethod(name = "getUser", httpMethod = HttpMethod.GET, path = "user")
+    public Collection<User> getUser(
+            User searchData,
+            @Nullable @Named("limit") @DefaultValue("50") int limit) {
+        if (searchData != null) {
+            logger.log(Level.INFO, "Getting user {0}", searchData.stringify());
+            return UserRepository.getInstance().getUser(searchData, limit);
+        }
+        return null;
     }
 
     @ApiMethod(name = "getAllUsers", httpMethod = HttpMethod.GET, path = "user/all")
     public Collection<User> getAllUsers(@Nullable @Named("limit") @DefaultValue("50") int limit) {
+        logger.log(Level.INFO, "Getting all users, return size {0}", limit);
         return UserRepository.getInstance().getAllUser(limit);
     }
 
-    @ApiMethod(name = "register", httpMethod = HttpMethod.GET, path = "user/register/{username}")
-    public User register(@Named("username") String username){
-        User newUser = new User(username);
+    @ApiMethod(name = "register", httpMethod = HttpMethod.POST, path = "user/register")
+    public User register(User newUser) {
+        //logger.log(Level.INFO, "Registering username {0} of name {1}", new Object[]{newUser.getUsername(), newUser.getName()});
         return UserRepository.getInstance().createUser(newUser);
     }
 
-    @ApiMethod(name = "follow", httpMethod = HttpMethod.PUT, path = "user/{user}/follow/{target}")
-    public User follow(@Named("user") Long userId, @Named("target") Long targetId) {
+    @ApiMethod(name = "deleteUser", httpMethod = HttpMethod.DELETE, path = "user/delete/{userId}")
+    public void deleteUser(@Named("userId") Long userId) {
+        logger.log(Level.INFO, "Deleting user of id {0}", userId);
+        UserRepository.getInstance().deleteUser(userId);
+    }
+
+    @ApiMethod(name = "deleteAllUsers", httpMethod = HttpMethod.DELETE, path = "user/delete/all")
+    public void deleteAllUsers() {
+        logger.log(Level.INFO, "Deleting all user");
+        UserRepository.getInstance().deleteAll();
+    }
+
+    @ApiMethod(name = "follow", httpMethod = HttpMethod.PUT, path = "user/{userId}/follow/{targetId}")
+    public User follow(@Named("userId") Long userId, @Named("targetId") Long targetId) {
+        logger.log(Level.INFO, "User {0} follows User {1}", new Object[]{userId, targetId});
 
         User user = UserRepository.getInstance().getUserById(userId);
         User target = UserRepository.getInstance().getUserById(targetId);
@@ -83,8 +106,11 @@ public class TinyInstaEndpoint {
 
     }
 
-    @ApiMethod(name = "unfollow", httpMethod = HttpMethod.PUT, path = "user/{user}/unfollow/{target}")
-    public User unfollow(@Named("user") Long userId, @Named("target") Long targetId) {
+    @ApiMethod(name = "unfollow", httpMethod = HttpMethod.PUT, path = "user/{userId}/unfollow/{targetId}")
+    public User unfollow(@Named("userId") Long userId, @Named("targetId") Long targetId) {
+
+        logger.log(Level.INFO, "User {0} unfollows User {1}", new Object[]{userId, targetId});
+
         User user = UserRepository.getInstance().getUserById(userId);
         User target = UserRepository.getInstance().getUserById(targetId);
 
@@ -97,17 +123,17 @@ public class TinyInstaEndpoint {
         return user;
     }
 
-    @ApiMethod(name = "createPost", httpMethod = HttpMethod.GET, path = "post/create/{data}")
-    public Post createPost(Post data){
+    @ApiMethod(name = "createPost", httpMethod = HttpMethod.POST, path = "post/create")
+    public Post createPost(Post data) {
+        //logger.log(Level.INFO, "Creating post {0}", data.stringify());
         return PostRepository.getInstance().createPost(data);
     }
 
     // POSTS
-
-    @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all/")
+    @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all")
     public Collection<Post> getAllPosts(@Nullable @Named("limit") @DefaultValue("50") int limit) {
+        logger.log(Level.INFO, "Getting all posts");
         return PostRepository.getInstance().getAllPost(limit);
     }
-
 
 }

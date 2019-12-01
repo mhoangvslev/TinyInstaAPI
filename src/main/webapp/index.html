@@ -1,14 +1,248 @@
 <!doctype html>
 <html>
-  <head>
-    <title>App Engine Demo</title>
-  </head>
-  <body>
-    <div id="result">Loading...</div>
-    <h1>Welcome to TinyInstaAPI</h1>
-    <p>Below are test URLs:</p>
-    <ul>
-        <li><a href="http://localhost:8080/_ah/api/tinyinsta/v1/getAllUsers">Get the list of all users</a></li>
-    </ul>
-  </body>
+
+<head>
+  <title>App Engine Demo</title>
+</head>
+
+<body>
+  <div id="result">Loading...</div>
+  <h1>Welcome to TinyInstaAPI</h1>
+  <p>Below are test URLs:</p>
+
+  <h3>Users</h3>
+  <ul>
+    <li>
+      <button onclick="getAllUsers()">getAllUsers</button>
+      <script>
+        function getAllUsers() {
+          const url = "http://localhost:8080/_ah/api/tinyinsta/v1/user/all";
+          const options = {
+            method: "GET",
+            headers: {
+              "Accept": "application/json"
+            },
+          };
+          fetch(url, options).then(
+            response => {
+              if (response.ok) {
+                return response.text();
+              }
+              return response.text().then(err => {
+                return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText,
+                  errorMessage: err,
+                });
+              });
+            })
+            .then(data => {
+              console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+      </script>
+
+    </li>
+
+    <li>
+      <input id="registerInput" type="text">
+      <button onclick="register()">register</button>
+
+      <script>
+        function register() {
+          const json = JSON.parse(document.getElementById("registerInput").value);
+          console.log(json)
+          const url = "http://localhost:8080/_ah/api/tinyinsta/v1/user/register";
+          const options = {
+            method: "POST",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(json),
+          };
+          fetch(url, options).then(
+            response => {
+              if (response.ok) {
+                return response.text();
+              }
+              return response.text().then(err => {
+                return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText,
+                  errorMessage: err,
+                });
+              });
+            })
+            .then(data => {
+              console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+
+      </script>
+    </li>
+
+    <li>
+      <input id="deleteId" type="text">
+      <button onclick="execute()">deleteById</button>
+      <script>
+        function execute() {
+          const url = "http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/" + document.getElementById("deleteId").value;
+          const options = {
+            method: "DELETE",
+            headers: {
+              "Accept": "application/json"
+            },
+          };
+          fetch(url, options).then(
+            response => {
+              if (response.ok) {
+                return response.text();
+              }
+              return response.text().then(err => {
+                return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText,
+                  errorMessage: err,
+                });
+              });
+            })
+            .then(data => {
+              console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+      </script>
+    </li>
+
+    <li>
+      <!-- Demo code sample. Not indended for production use. -->
+
+      <button onclick="deleteAllUsers()">Delete all users</button>
+
+      <script>
+        function deleteAllUsers() {
+          const url = "http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/all";
+          const options = {
+            method: "DELETE",
+            headers: {
+              "Accept": "application/json"
+            },
+          };
+          fetch(url, options).then(
+            response => {
+              if (response.ok) {
+                return response.text();
+              }
+              return response.text().then(err => {
+                return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText,
+                  errorMessage: err,
+                });
+              });
+            })
+            .then(data => {
+              console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+
+      </script>
+
+    </li>
+  </ul>
+
+
+  <h3>Posts</h3>
+  <ul>
+    <li>
+      <button onclick="getAllPosts()">getAllPosts</button>
+      <script>
+        function getAllPosts() {
+          const url = "http://localhost:8080/_ah/api/tinyinsta/v1/post/all";
+          const options = {
+            method: "GET",
+            headers: {
+              "Accept": "application/json"
+            },
+          };
+          fetch(url, options).then(
+            response => {
+              if (response.ok) {
+                return response.text();
+              }
+              return response.text().then(err => {
+                return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText,
+                  errorMessage: err,
+                });
+              });
+            })
+            .then(data => {
+              console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+      </script>
+
+    </li>
+
+    <li>
+      <input id="postInput" type="text">
+      <button onclick="createPost()">Create post</button>
+
+      <script>
+        function createPost() {
+          const json = JSON.parse(document.getElementById("postInput").value);
+          console.log(json);
+
+          const url = "http://localhost:8080/_ah/api/tinyinsta/v1/post/create";
+          const options = {
+            method: "POST",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(json),
+          };
+          fetch(url, options).then(
+            response => {
+              if (response.ok) {
+                return response.text();
+              }
+              return response.text().then(err => {
+                return Promise.reject({
+                  status: response.status,
+                  statusText: response.statusText,
+                  errorMessage: err,
+                });
+              });
+            })
+            .then(data => {
+              console.log(data);
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+
+      </script>
+    </li>
+  </ul>
+</body>
+
 </html>

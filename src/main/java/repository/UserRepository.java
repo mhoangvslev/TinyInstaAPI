@@ -39,15 +39,15 @@ public class UserRepository {
     private UserRepository() {
     }
 
-    public LoadType query() {
+    private LoadType query() {
         return ofy().load().type(User.class);
     }
 
-    public Saver save() {
+    private Saver save() {
         return ofy().save();
     }
 
-    public Deleter delete() {
+    private Deleter delete() {
         return ofy().delete();
     }
 
@@ -92,13 +92,23 @@ public class UserRepository {
         return (User) query().id(id).now();
     }
 
-    public Collection<User> getUserByName(String username, int limit) {
-        return query().filter("username =", username).limit(limit).list();
+    public Collection<User> getUser(User searchData, int limit) {
+        if (searchData == null) {
+            return null;
+        }
+
+        Collection<User> result;
+        if ((result = query().filter("username =", searchData.getUsername()).limit(limit).list()) != null) {
+
+        } else if ((result = query().filter("name =", searchData.getName()).limit(limit).list()) != null) {
+
+        }
+        return result;
     }
 
     // DELETE
-    public void deleteUser(User u) {
-        delete().type(User.class).id(u.getId()).now();
+    public void deleteUser(Long userId) {
+        delete().type(User.class).id(userId).now();
     }
 
     public void deleteAll() {

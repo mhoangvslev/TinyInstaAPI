@@ -8,8 +8,8 @@ import com.googlecode.objectify.cmd.Saver;
 import entity.Post;
 import entity.User;
 import java.util.Collection;
-import static repository.RepositoryService.ofy;
 import java.util.Date;
+import static repository.RepositoryService.ofy;
 
 /**
  *
@@ -17,7 +17,7 @@ import java.util.Date;
  */
 public class PostRepository {
 
-    private static repository.PostRepository postRepo;
+    private static PostRepository postRepo;
 
     static {
         ObjectifyService.register(Post.class);
@@ -38,9 +38,9 @@ public class PostRepository {
         return ofy().delete();
     }
 
-    public static synchronized repository.PostRepository getInstance() {
+    public static synchronized PostRepository getInstance() {
         if (postRepo == null) {
-            postRepo = new repository.PostRepository();
+            postRepo = new PostRepository();
         }
         return postRepo;
     }
