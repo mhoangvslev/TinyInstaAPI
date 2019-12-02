@@ -1,8 +1,9 @@
 echo "Starting local datastore emulator..."
-gnome-terminal -x sh -c 'gcloud beta emulators datastore start --host-port=localhost:8484'
+gnome-terminal -- sh -c 'gcloud beta emulators datastore start --host-port=localhost:8484'
 
 echo "Rebuild project..."
-mvn clean package;
+mvn versions:use-latest-releases
+mvn clean package -U;
 
 echo "Invoking the Endpoints Frameworks tool ... "
 mvn endpoints-framework:openApiDocs

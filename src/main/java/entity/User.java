@@ -19,7 +19,6 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import java.util.HashSet;
-import javax.jdo.annotations.Persistent;
 
 /**
  *
@@ -29,14 +28,16 @@ import javax.jdo.annotations.Persistent;
 public class User {
 
     @Id
-    private Long id;
+    private Long userId;
 
     @Index
     private String username;
 
+    @Index
+    private String name;
+
     private String avatarURL;
 
-    @Persistent
     private HashSet<Long> followers;
     private HashSet<Long> following;
 
@@ -44,18 +45,28 @@ public class User {
 
     }
 
-    public User(String username) {
+    public User(String username, String name, String avatarURL) {
         this.username = username;
+        this.name = name;
+        this.avatarURL = avatarURL;
         this.followers = new HashSet<>();
         this.following = new HashSet<>();
     }
 
     public Long getId() {
-        return id;
+        return userId;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.userId = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getUsername() {
@@ -106,9 +117,8 @@ public class User {
         this.avatarURL = avatarURL;
     }
 
-    @Override
-    public String toString() {
-        return "User{" + "id=" + id + ", username=" + username + ", avatarURL=" + avatarURL + '}';
-    }    
-
+    public String stringify() {
+        String id = userId == null ? "decoy" : userId.toString();
+        return "User{" + "id=" + userId + ", username=" + username + ", name=" + name + ", avatarURL=" + avatarURL + ", followers=" + followers.size() + ", following=" + following.size() + '}';
+    }
 }

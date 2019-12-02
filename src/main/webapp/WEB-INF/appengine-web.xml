@@ -26,6 +26,9 @@
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
 
+    <application>tinyinstagram</application>
+    <version>1</version>
+
     <!-- [START env_variables] -->
     <env-variables>
         <env-var name="ENDPOINTS_SERVICE_NAME" value="tinyinstagram.appspot.com" />
