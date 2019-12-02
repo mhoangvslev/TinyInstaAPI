@@ -197,7 +197,7 @@
                 <version>2.0.1</version>
                 <configuration>
                     <!-- plugin configuration -->
-                    <!--<hostname>${endpoints.project.id}.appspot.com</hostname>-->
+                    <!-- deploy configuration -->
                 </configuration>
             </plugin>
             <!-- [END endpoints_plugin] -->

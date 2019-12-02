@@ -93,7 +93,7 @@ public class User {
     }
 
     public void addFollower(Long id) {
-        if(this.followers == null){
+        if (this.followers == null) {
             this.followers = new HashSet();
         }
         this.followers.add(id);
@@ -104,7 +104,7 @@ public class User {
     }
 
     public void addFollowing(Long id) {
-        if(this.following == null){
+        if (this.following == null) {
             this.following = new HashSet();
         }
         this.following.add(id);
@@ -125,8 +125,7 @@ public class User {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.username);
-        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 37 * hash + Objects.hashCode(this.username);
         return hash;
     }
 
@@ -143,9 +142,6 @@ public class User {
         }
         final User other = (User) obj;
         if (!Objects.equals(this.username, other.username)) {
-            return false;
-        }
-        if (!Objects.equals(this.name, other.name)) {
             return false;
         }
         return true;
