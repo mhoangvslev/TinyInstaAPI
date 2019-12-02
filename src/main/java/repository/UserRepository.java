@@ -22,7 +22,6 @@ import com.googlecode.objectify.cmd.Query;
 import com.googlecode.objectify.cmd.Saver;
 import entity.User;
 import java.util.Collection;
-import java.util.List;
 import static repository.RepositoryService.ofy;
 
 /**
@@ -100,7 +99,7 @@ public class UserRepository {
 
     private Query queryFilter(Query q, String propertyName, Object propertyValue, int limit) {
         Query res = q == null ? query() : q;
-        return res.filter(propertyName + "=", propertyValue).limit(limit);
+        return res.filter(propertyName + " = ", propertyValue).limit(limit);
     }
 
     public Collection<User> getUserByUserName(String username, int limit) {
