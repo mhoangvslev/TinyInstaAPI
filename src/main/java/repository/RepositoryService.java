@@ -17,6 +17,7 @@ package repository;
 
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
+import entity.Post;
 import entity.User;
 
 /**
@@ -28,6 +29,7 @@ public class RepositoryService {
     static {
         // Register all classes
         ObjectifyService.register(User.class);
+        ObjectifyService.register(Post.class);
     }
 
     public static Objectify ofy() {
