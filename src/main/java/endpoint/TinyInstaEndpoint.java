@@ -23,6 +23,8 @@ import com.google.api.server.spi.config.DefaultValue;
 import com.google.api.server.spi.config.Named;
 import entity.Post;
 import entity.User;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.logging.Level;
@@ -296,6 +298,7 @@ public class TinyInstaEndpoint {
     -- GET
     ----------------------
      */
+
     @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all")
     public Collection<Post> getAllPosts(@Nullable @Named("limit") @DefaultValue("50") int limit) {
         logger.log(Level.INFO, "Getting all posts");
@@ -309,7 +312,20 @@ public class TinyInstaEndpoint {
     ) {
         return PostRepository.getInstance().getPostsByUser(userId, limit);
     }
-    
+
+    @ApiMethod(name = "getPostsByFollow", httpMethod = HttpMethod.GET, path = "post/followed/{userId}")
+    public Collection<Post> getPostsByFollow(
+            @Named("userId") Long userId,
+            @Nullable @Named("limit") @DefaultValue("50") int limit
+    ) {
+        User user = UserRepository.getInstance().getUserById(userId);
+        Collection<Post> news = new ArrayList<>();
+        for(Long id : user.getFollowing()){
+            news.addAll(PostRepository.getInstance().getPostsByUser(id,limit));
+        }
+        return news;
+    }
+
     /*
     ----------------------
     -- UPDATE
@@ -317,11 +333,40 @@ public class TinyInstaEndpoint {
      */
     
     //
-    
+    @ApiMethod(name = "updatePost", httpMethod = HttpMethod.PUT, path = "post/{postId}/update")
+    public Post updatePost(
+            @Named("postId") Long postId,
+            @Nullable @Named("caption") String caption,
+            @Nullable @Named("imageUrl") String imageUrl
+    ) {
+        Post target = PostRepository.getInstance().getPostById(postId);
+
+        if (target != null) {
+            if (caption != null) {
+                target.setCaption(caption);
+            }
+            if (imageUrl != null) {
+                target.setImageUrl(imageUrl);
+            }
+            return PostRepository.getInstance().updatePost(target);
+        }
+        return null;
+    }
+
     /*
     ----------------------
     -- DELETE
     ----------------------
      */
+
+    @ApiMethod(name = "deletePost", httpMethod = HttpMethod.DELETE, path = "post/delete/{postId}")
+    public void deletePost(@Named("postId") Long postId) {
+        PostRepository.getInstance().deletePost(postId);
+    }
+
+    @ApiMethod(name = "deleteAllPosts", httpMethod = HttpMethod.DELETE, path = "post/delete/all")
+    public void deleteAllPosts() {
+        PostRepository.getInstance().deleteAll();
+    }
 
 }

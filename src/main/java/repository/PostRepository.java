@@ -52,7 +52,7 @@ public class PostRepository {
     }
 
     //PUT
-    public Key<Post> updatePost(Post update) {
+    public Post updatePost(Post update) {
         Long id = update.getPostId();
         if (id == null){
             return null;
@@ -61,7 +61,8 @@ public class PostRepository {
         if (target != null) {
             target.setImageUrl(update.getImageUrl());
             target.setCaption(update.getCaption());
-            return save().entity(target).now();
+            save().entity(target).now();
+            return target;
         }
         return null;
     }
@@ -85,8 +86,8 @@ public class PostRepository {
     }
 
     // DELETE
-    public void deletePost(Post p) {
-        delete().type(Post.class).id(p.getPostId()).now();
+    public void deletePost(Long id) {
+        delete().type(Post.class).id(id).now();
     }
     
     public int deletePosts(Collection<Post> posts){
