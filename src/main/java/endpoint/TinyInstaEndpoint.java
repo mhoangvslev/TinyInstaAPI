@@ -254,6 +254,7 @@ public class TinyInstaEndpoint {
     public void deleteAllUsers() {
         logger.log(Level.INFO, "Deleting all user");
         UserRepository.getInstance().deleteAll();
+        PostRepository.getInstance().deleteAll();
     }
 
     /*
