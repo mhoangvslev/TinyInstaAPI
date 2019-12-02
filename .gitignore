@@ -29,3 +29,11 @@ buildNumber.properties
 .metadata/
 
 .settings/
+
+.project
+
+.classpath
+
+.idea/
+
+*.iml
