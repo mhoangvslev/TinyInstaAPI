@@ -6,7 +6,7 @@ import com.googlecode.objectify.cmd.Deleter;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Saver;
 import entity.Post;
-import entity.User;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import static repository.RepositoryService.ofy;
@@ -80,13 +80,23 @@ public class PostRepository {
         return query().filter("date =", date).limit(limit).list();
     }
 
-    public Collection<Post> getPostsByUser(User postedBy, int limit) {
+    public Collection<Post> getPostsByUser(Long postedBy, int limit) {
         return query().filter("postedBy =", postedBy).limit(limit).list();
     }
 
     // DELETE
     public void deletePost(Post p) {
         delete().type(Post.class).id(p.getPostId()).now();
+    }
+    
+    public int deletePosts(Collection<Post> posts){
+        Long[] arr = (Long[]) posts.stream()
+                .filter((p) -> (p != null && p.getPostId() != null))
+                .map((p) -> (p.getPostId())).toArray();
+        
+        Collection<Long> ids = Arrays.asList(arr);
+        delete().type(Post.class).ids(ids).now();
+        return ids.size();
     }
 
     public void deleteAll() {

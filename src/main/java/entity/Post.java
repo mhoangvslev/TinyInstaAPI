@@ -7,6 +7,7 @@ package entity;
 import com.googlecode.objectify.annotation.*;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 
 @Entity
 public class Post {
@@ -16,7 +17,8 @@ public class Post {
 
     private String imageUrl;
     private String caption;
-    private HashSet<Long> likedBy;
+    
+    private HashSet<Long> likedBy = new HashSet<>();
 
     @Index
     private Date date;
@@ -27,12 +29,11 @@ public class Post {
     public Post() {
     }
 
-    public Post(String imageUrl, String caption, Long postedBy) {
+    public Post(String imageUrl, String caption, Long postedBy, Date date) {
         this.imageUrl = imageUrl;
         this.caption = caption;
         this.postedBy = postedBy;
-        this.date = new Date();
-        this.likedBy = new HashSet<>();
+        this.date = date;
     }
 
     public Long getPostId() {
@@ -53,6 +54,10 @@ public class Post {
 
     public void addLike(Long u) {
         this.likedBy.add(u);
+    }
+
+    public void removeLike(Long u) {
+        this.likedBy.remove(u);
     }
 
     public Date getDate() {
@@ -87,9 +92,41 @@ public class Post {
         this.postedBy = postedBy;
     }
 
-    public String stringify() {
-        String id = postId == null ? "decoy" : postId.toString();
-        return "Post{" + "postId=" + id + ", imageUrl=" + imageUrl + ", caption=" + caption + ", likedBy=" + likedBy.size() + ", date=" + date + ", postedBy=" + postedBy + '}';
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.imageUrl);
+        hash = 61 * hash + Objects.hashCode(this.caption);
+        hash = 61 * hash + Objects.hashCode(this.date);
+        hash = 61 * hash + Objects.hashCode(this.postedBy);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Post other = (Post) obj;
+        if (!Objects.equals(this.imageUrl, other.imageUrl)) {
+            return false;
+        }
+        if (!Objects.equals(this.caption, other.caption)) {
+            return false;
+        }
+        if (!Objects.equals(this.date, other.date)) {
+            return false;
+        }
+        if (!Objects.equals(this.postedBy, other.postedBy)) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -21,10 +21,10 @@ import com.google.api.server.spi.config.ApiMethod.HttpMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.DefaultValue;
 import com.google.api.server.spi.config.Named;
-import entity.Message;
 import entity.Post;
 import entity.User;
 import java.util.Collection;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -36,51 +36,216 @@ import repository.UserRepository;
 public class TinyInstaEndpoint {
 
     private static final Logger logger = Logger.getLogger(TinyInstaEndpoint.class.getName());
+    private static final int QUERY_MAX_LIMIT = Integer.MAX_VALUE;
 
-    // Test
-    @ApiMethod(name = "hello1", httpMethod = HttpMethod.GET, path = "hello")
-    public Message hello1() {
-        return new Message("Hello world!");
+    /*
+    ===================================================================================
+    == USER
+    ===================================================================================
+     */
+    //
+    /*
+    ----------------------
+    -- POST
+    ----------------------
+     */
+    /**
+     * Enregistrer un nouveau utilisateur
+     *
+     * @param username
+     * @param name
+     * @param avatarURL
+     * @return le nouvelle
+     */
+    @ApiMethod(name = "register", httpMethod = HttpMethod.POST, path = "user/register/{username}/{name}/{avatarURL}")
+    public User register(
+            @Named("username") String username,
+            @Named("name") String name,
+            @Named("avatarURL") String avatarURL
+    ) {
+        User target = new User(username, name, avatarURL);
+
+        Collection<User> decoy = UserRepository.getInstance().getUserByUserName(target.getUsername(), QUERY_MAX_LIMIT);
+        if (!decoy.contains(target)) {
+            logger.log(Level.INFO, "[SUCCESS] Registering username {0} of name {1}", new Object[]{target.getUsername(), target.getName()});
+            return UserRepository.getInstance().createUser(target);
+
+        }
+
+        logger.log(Level.INFO, "[FAILED] Already exists username {0} of name {1}", new Object[]{target.getUsername(), target.getName()});
+        return null;
     }
 
-    @ApiMethod(name = "hello2", httpMethod = HttpMethod.GET, path = "hello2")
-    public Message hello2(@Nullable @Named("name") @DefaultValue("world") String name) {
-        return new Message("Hello " + name + "!");
+    /*
+    ----------------------
+    -- GET
+    ----------------------
+     */
+    /**
+     *
+     * @param limit query results size limit
+     * @return
+     */
+    @ApiMethod(name = "getAllUsers", httpMethod = HttpMethod.GET, path = "user/all")
+    public Collection<User> getAllUsers(@Nullable @Named("limit") @DefaultValue("50") int limit) {
+        logger.log(Level.INFO, "[SUCCESS] Getting all users, return size {0}", limit);
+        return UserRepository.getInstance().getAllUser(limit);
     }
 
-    @ApiMethod(name = "hello3", httpMethod = HttpMethod.GET, path = "hello/hello3/{name}")
-    public Message hello3(@Named("name") String name) {
-        return new Message("Hello " + name + "!");
-    }
-
-    // USER
-    @ApiMethod(name = "getUser", httpMethod = HttpMethod.GET, path = "user")
-    public Collection<User> getUser(
-            User searchData,
-            @Nullable @Named("limit") @DefaultValue("50") int limit) {
-        if (searchData != null) {
-            logger.log(Level.INFO, "Getting user {0}", searchData.stringify());
-            return UserRepository.getInstance().getUser(searchData, limit);
+    @ApiMethod(name = "getFollowers", httpMethod = HttpMethod.GET, path = "user/{userId}/followers")
+    public Collection<User> getFollowers(@Named("userId") Long userId) {
+        User user = UserRepository.getInstance().getUserById(userId);
+        if (user != null) {
+            Collection<Long> followersIds = user.getFollowers();
+            return UserRepository.getInstance().getUsersByIds(followersIds);
         }
         return null;
     }
 
-    @ApiMethod(name = "getAllUsers", httpMethod = HttpMethod.GET, path = "user/all")
-    public Collection<User> getAllUsers(@Nullable @Named("limit") @DefaultValue("50") int limit) {
-        logger.log(Level.INFO, "Getting all users, return size {0}", limit);
-        return UserRepository.getInstance().getAllUser(limit);
+    @ApiMethod(name = "getFollowers", httpMethod = HttpMethod.GET, path = "user/{userId}/following")
+    public Collection<User> getFollowing(@Named("userId") Long userId) {
+        User user = UserRepository.getInstance().getUserById(userId);
+        if (user != null) {
+            Collection<Long> followingIds = user.getFollowing();
+            return UserRepository.getInstance().getUsersByIds(followingIds);
+        }
+        return null;
     }
 
-    @ApiMethod(name = "register", httpMethod = HttpMethod.POST, path = "user/register")
-    public User register(User newUser) {
-        //logger.log(Level.INFO, "Registering username {0} of name {1}", new Object[]{newUser.getUsername(), newUser.getName()});
-        return UserRepository.getInstance().createUser(newUser);
+    /*
+    ----------------------
+    -- PUT
+    ----------------------
+     */
+    @ApiMethod(name = "updateUser", httpMethod = HttpMethod.PUT, path = "user/{userId}/update")
+    public User updateUser(
+            @Named("userId") Long targetId,
+            @Nullable @Named("username") String username,
+            @Nullable @Named("name") String name,
+            @Nullable @Named("avatarURL") String avatarURL
+    ) {
+        User target = UserRepository.getInstance().getUserById(targetId);
+
+        if (target != null) {
+            if (name != null) {
+                target.setName(name);
+            }
+
+            if (username != null) {
+                target.setUsername(username);
+            }
+
+            if (avatarURL != null) {
+                target.setAvatarURL(avatarURL);
+            }
+
+            logger.log(Level.INFO, "[SUCCESS] Update user {0}", targetId);
+            return UserRepository.getInstance().updateUser(target);
+        }
+
+        logger.log(Level.INFO, "[FAILED] Update user {0}", targetId);
+        return null;
     }
 
+    @ApiMethod(name = "follow", httpMethod = HttpMethod.PUT, path = "user/{userId}/follow/{targetId}")
+    public User follow(@Named("userId") Long userId, @Named("targetId") Long targetId) {
+
+        User user = UserRepository.getInstance().getUserById(userId);
+        User target = UserRepository.getInstance().getUserById(targetId);
+
+        if (user != null && target != null) {
+            target.addFollower(user.getId());
+            user.addFollowing(target.getId());
+
+            UserRepository.getInstance().updateUser(target);
+            UserRepository.getInstance().updateUser(user);
+
+            logger.log(Level.INFO, "[SUCCESS] User {0} follows User {1}", new Object[]{userId, targetId});
+
+            return user;
+        }
+
+        logger.log(Level.INFO, "[FAILED] User {0} follows User {1}", new Object[]{userId, targetId});
+        return null;
+    }
+
+    @ApiMethod(name = "unfollow", httpMethod = HttpMethod.PUT, path = "user/{userId}/unfollow/{targetId}")
+    public User unfollow(@Named("userId") Long userId, @Named("targetId") Long targetId) {
+
+        User user = UserRepository.getInstance().getUserById(userId);
+        User target = UserRepository.getInstance().getUserById(targetId);
+
+        if (user != null && target != null) {
+            target.removeFollower(user.getId());
+            user.removeFollowing(target.getId());
+
+            UserRepository.getInstance().updateUser(target);
+            UserRepository.getInstance().updateUser(user);
+
+            logger.log(Level.INFO, "[SUCCESS] User {0} unfollows User {1}", new Object[]{userId, targetId});
+
+            return user;
+        }
+
+        logger.log(Level.INFO, "[FAILED] User {0} unfollows User {1}", new Object[]{userId, targetId});
+        return null;
+    }
+
+    @ApiMethod(name = "like", httpMethod = HttpMethod.PUT, path = "user/{userId}/like/{postId}")
+    public Post like(
+            @Named("userId") Long userId,
+            @Named("postId") Long postId
+    ) {
+        User user = UserRepository.getInstance().getUserById(userId);
+        Post post = PostRepository.getInstance().getPostById(postId);
+
+        if (user != null && post != null) {
+            post.addLike(user.getId());
+            PostRepository.getInstance().updatePost(post);
+
+            logger.log(Level.INFO, "[SUCCESS] User {0} likes Post {1}", new Object[]{user.getId(), post.getPostId()});
+            return post;
+        }
+
+        logger.log(Level.INFO, "[FAILED] User {0} likes Post {1}", new Object[]{userId, postId});
+        return null;
+    }
+
+    @ApiMethod(name = "like", httpMethod = HttpMethod.PUT, path = "user/{userId}/unlike/{postId}")
+    public Post unlike(
+            @Named("userId") Long userId,
+            @Named("postId") Long postId
+    ) {
+        User user = UserRepository.getInstance().getUserById(userId);
+        Post post = PostRepository.getInstance().getPostById(postId);
+
+        if (user != null && post != null) {
+            post.removeLike(user.getId());
+            PostRepository.getInstance().updatePost(post);
+
+            logger.log(Level.INFO, "[SUCCESS] User {0} unlikes Post {1}", new Object[]{user.getId(), post.getPostId()});
+            return post;
+        }
+
+        logger.log(Level.INFO, "[FAILED] User {0} unlikes Post {1}", new Object[]{userId, postId});
+        return null;
+    }
+
+    /*
+    ----------------------
+    -- DELETE
+    ----------------------
+     */
     @ApiMethod(name = "deleteUser", httpMethod = HttpMethod.DELETE, path = "user/delete/{userId}")
     public void deleteUser(@Named("userId") Long userId) {
         logger.log(Level.INFO, "Deleting user of id {0}", userId);
         UserRepository.getInstance().deleteUser(userId);
+
+        Collection<Post> posts = PostRepository.getInstance().getPostsByUser(userId, QUERY_MAX_LIMIT);
+        if (posts != null) {
+            int res = PostRepository.getInstance().deletePosts(posts);
+            logger.log(Level.INFO, "[SUCCESS] Deleted {0} posts that belong to user of id {1}", new Object[]{res, userId});
+        }
     }
 
     @ApiMethod(name = "deleteAllUsers", httpMethod = HttpMethod.DELETE, path = "user/delete/all")
@@ -89,51 +254,74 @@ public class TinyInstaEndpoint {
         UserRepository.getInstance().deleteAll();
     }
 
-    @ApiMethod(name = "follow", httpMethod = HttpMethod.PUT, path = "user/{userId}/follow/{targetId}")
-    public User follow(@Named("userId") Long userId, @Named("targetId") Long targetId) {
-        logger.log(Level.INFO, "User {0} follows User {1}", new Object[]{userId, targetId});
-
-        User user = UserRepository.getInstance().getUserById(userId);
-        User target = UserRepository.getInstance().getUserById(targetId);
-
-        target.addFollower(user.getId());
-        user.addFollowing(target.getId());
-
-        UserRepository.getInstance().updateUser(target);
-        UserRepository.getInstance().updateUser(user);
-
-        return user;
-
-    }
-
-    @ApiMethod(name = "unfollow", httpMethod = HttpMethod.PUT, path = "user/{userId}/unfollow/{targetId}")
-    public User unfollow(@Named("userId") Long userId, @Named("targetId") Long targetId) {
-
-        logger.log(Level.INFO, "User {0} unfollows User {1}", new Object[]{userId, targetId});
-
-        User user = UserRepository.getInstance().getUserById(userId);
-        User target = UserRepository.getInstance().getUserById(targetId);
-
-        target.removeFollower(user.getId());
-        user.removeFollowing(target.getId());
-
-        UserRepository.getInstance().updateUser(target);
-        UserRepository.getInstance().updateUser(user);
-
-        return user;
-    }
-
+    /*
+    ===================================================================================
+    == POSTS
+    ===================================================================================
+     */
+    //
+    /*
+    ----------------------
+    -- POST
+    ----------------------
+     */
     @ApiMethod(name = "createPost", httpMethod = HttpMethod.POST, path = "post/create")
-    public Post createPost(Post data) {
+    public Post createPost(
+            @Named("ownerId") Long ownerId,
+            @Named("imageURL") String imageURL,
+            @Named("caption") String caption
+    ) {
         //logger.log(Level.INFO, "Creating post {0}", data.stringify());
-        return PostRepository.getInstance().createPost(data);
+
+        User owner = UserRepository.getInstance().getUserById(ownerId);
+        if (owner != null) {
+            Post post = new Post(imageURL, caption, owner.getId(), new Date());
+
+            Collection<Post> decoy = PostRepository.getInstance().getPostsByUser(ownerId, QUERY_MAX_LIMIT);
+            if (!decoy.contains(post)) {
+                logger.log(Level.INFO, "[SUCCESS] Created post for user {0} at {1}", new Object[]{post.getPostedBy(), post.getDate().toString()});
+                return PostRepository.getInstance().createPost(post);
+            }
+
+            logger.log(Level.INFO, "[FAILED] Post already for user {1}", new Object[]{post.getPostedBy()});
+            return null;
+        }
+
+        logger.log(Level.INFO, "[FAILED] Owner {0} doesn't exist!", new Object[]{ownerId});
+        return null;
     }
 
-    // POSTS
+    /*
+    ----------------------
+    -- GET
+    ----------------------
+     */
     @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all")
     public Collection<Post> getAllPosts(@Nullable @Named("limit") @DefaultValue("50") int limit) {
         logger.log(Level.INFO, "Getting all posts");
         return PostRepository.getInstance().getAllPost(limit);
     }
+
+    @ApiMethod(name = "getPostsByUser", httpMethod = HttpMethod.GET, path = "post/{userId}")
+    public Collection<Post> getPostsByUser(
+            @Named("userId") Long userId,
+            @Nullable @Named("limit") @DefaultValue("50") int limit
+    ) {
+        return PostRepository.getInstance().getPostsByUser(userId, limit);
+    }
+    
+    /*
+    ----------------------
+    -- UPDATE
+    ----------------------
+     */
+    
+    //
+    
+    /*
+    ----------------------
+    -- DELETE
+    ----------------------
+     */
 
 }

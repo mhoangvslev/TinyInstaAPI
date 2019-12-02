@@ -73,11 +73,6 @@
 
     <!--
     <filter-mapping>
-        <filter-name>ObjectifyFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
         <filter-name>endpoints-api-configuration</filter-name>
         <servlet-name>EndpointsServlet</servlet-name>
     </filter-mapping>

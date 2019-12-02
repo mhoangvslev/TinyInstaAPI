@@ -15,13 +15,14 @@
  */
 package repository;
 
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Deleter;
 import com.googlecode.objectify.cmd.LoadType;
+import com.googlecode.objectify.cmd.Query;
 import com.googlecode.objectify.cmd.Saver;
 import entity.User;
 import java.util.Collection;
+import java.util.List;
 import static repository.RepositoryService.ofy;
 
 /**
@@ -65,7 +66,7 @@ public class UserRepository {
     }
 
     // PUT
-    public Key<User> updateUser(User update) {
+    public User updateUser(User update) {
         Long id = update.getId();
         if (id == null) {
             return null;
@@ -78,7 +79,8 @@ public class UserRepository {
             target.setFollowers(update.getFollowers());
             target.setFollowing(update.getFollowing());
             target.setAvatarURL(update.getAvatarURL());
-            return save().entity(target).now();
+            save().entity(target).now();
+            return target;
         }
         return null;
     }
@@ -92,18 +94,21 @@ public class UserRepository {
         return (User) query().id(id).now();
     }
 
-    public Collection<User> getUser(User searchData, int limit) {
-        if (searchData == null) {
-            return null;
-        }
+    public Collection<User> getUsersByIds(Collection<Long> ids) {
+        return query().ids(ids).values();
+    }
 
-        Collection<User> result;
-        if ((result = query().filter("username =", searchData.getUsername()).limit(limit).list()) != null) {
+    private Query queryFilter(Query q, String propertyName, Object propertyValue, int limit) {
+        Query res = q == null ? query() : q;
+        return res.filter(propertyName + "=", propertyValue).limit(limit);
+    }
 
-        } else if ((result = query().filter("name =", searchData.getName()).limit(limit).list()) != null) {
+    public Collection<User> getUserByUserName(String username, int limit) {
+        return queryFilter(null, "username", username, limit).list();
+    }
 
-        }
-        return result;
+    public Collection<User> getUserByName(String name, int limit) {
+        return queryFilter(null, "name", name, limit).list();
     }
 
     // DELETE

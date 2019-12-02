@@ -13,9 +13,18 @@ curl --request GET \
   --compressed
 
 curl --request POST \
-  'http://localhost:8080/_ah/api/tinyinsta/v1/user/register' \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/register/mhoangvslev/Hoang/avatar1' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
-  --data '{"name":"Vicky","username":"mhoangvslev"}' \
+  --compressed
+
+curl --request PUT \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/1/follow/2' \
+  --header 'Accept: application/json' \
+  --compressed
+
+curl --request GET \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/2/followers' \
+  --header 'Accept: application/json' \
   --compressed
 

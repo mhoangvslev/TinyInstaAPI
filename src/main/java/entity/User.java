@@ -19,6 +19,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  *
@@ -38,8 +39,8 @@ public class User {
 
     private String avatarURL;
 
-    private HashSet<Long> followers;
-    private HashSet<Long> following;
+    private HashSet<Long> followers = new HashSet<>();
+    private HashSet<Long> following = new HashSet<>();
 
     public User() {
 
@@ -49,8 +50,6 @@ public class User {
         this.username = username;
         this.name = name;
         this.avatarURL = avatarURL;
-        this.followers = new HashSet<>();
-        this.following = new HashSet<>();
     }
 
     public Long getId() {
@@ -94,6 +93,9 @@ public class User {
     }
 
     public void addFollower(Long id) {
+        if(this.followers == null){
+            this.followers = new HashSet();
+        }
         this.followers.add(id);
     }
 
@@ -102,6 +104,9 @@ public class User {
     }
 
     public void addFollowing(Long id) {
+        if(this.following == null){
+            this.following = new HashSet();
+        }
         this.following.add(id);
     }
 
@@ -117,8 +122,33 @@ public class User {
         this.avatarURL = avatarURL;
     }
 
-    public String stringify() {
-        String id = userId == null ? "decoy" : userId.toString();
-        return "User{" + "id=" + userId + ", username=" + username + ", name=" + name + ", avatarURL=" + avatarURL + ", followers=" + followers.size() + ", following=" + following.size() + '}';
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.username);
+        hash = 97 * hash + Objects.hashCode(this.name);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        if (!Objects.equals(this.username, other.username)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        return true;
+    }
+
 }
