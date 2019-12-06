@@ -2,7 +2,7 @@ curl --request POST \
   'http://localhost:8080/_ah/api/tinyinsta/v1/post/create' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
-  --data '{"imageUrl":"test","caption":"caption","postedBy":1}' \
+  --data '{"imageURL":"test","caption":"caption","ownerId":1}' \
   --compressed
 
 curl --request GET \
@@ -10,6 +10,18 @@ curl --request GET \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --data '{"username": "hoang"}' \
+  --compressed
+
+curl --request GET \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/post/all' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --compressed
+
+curl --request GET \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/all' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
   --compressed
 
 curl --request POST \
@@ -29,7 +41,11 @@ curl --request GET \
   --compressed
 
 curl --request DELETE \
-  'http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/all' \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/1' \
   --header 'Accept: application/json' \
   --compressed
 
+curl --request DELETE \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/all' \
+  --header 'Accept: application/json' \
+  --compressed

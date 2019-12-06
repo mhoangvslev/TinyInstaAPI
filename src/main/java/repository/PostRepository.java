@@ -9,6 +9,7 @@ import entity.Post;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import static repository.RepositoryService.ofy;
 
 /**
@@ -91,11 +92,12 @@ public class PostRepository {
     }
     
     public int deletePosts(Collection<Post> posts){
-        Long[] arr = (Long[]) posts.stream()
-                .filter((p) -> (p != null && p.getPostId() != null))
-                .map((p) -> (p.getPostId())).toArray();
         
-        Collection<Long> ids = Arrays.asList(arr);
+        HashSet<Long> ids = new HashSet<>();
+        posts.forEach((p) -> {
+            ids.add(p.getPostId());
+        });
+        
         delete().type(Post.class).ids(ids).now();
         return ids.size();
     }
