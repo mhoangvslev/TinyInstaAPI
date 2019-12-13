@@ -15,9 +15,7 @@
  */
 package entity;
 
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.*;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -25,6 +23,8 @@ import java.util.Objects;
  *
  * @author minhhoangdang
  */
+
+@Cache
 @Entity
 public class User {
 

@@ -16,19 +16,17 @@
 package repository;
 
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.cmd.Deleter;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
-import com.googlecode.objectify.cmd.Saver;
 import entity.User;
 import java.util.Collection;
-import static repository.RepositoryService.ofy;
+import static repository.RepositoryService.*;
 
 /**
  *
  * @author minhhoangdang
  */
-public class UserRepository {
+public class UserRepository extends RepositoryService {
 
     private static UserRepository repo;
 
@@ -40,15 +38,7 @@ public class UserRepository {
     }
 
     private LoadType query() {
-        return ofy().load().type(User.class);
-    }
-
-    private Saver save() {
-        return ofy().save();
-    }
-
-    private Deleter delete() {
-        return ofy().delete();
+        return query(User.class);
     }
 
     public static synchronized UserRepository getInstance() {

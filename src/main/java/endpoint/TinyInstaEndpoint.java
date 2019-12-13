@@ -21,6 +21,7 @@ import com.google.api.server.spi.config.ApiMethod.HttpMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.DefaultValue;
 import com.google.api.server.spi.config.Named;
+import entity.Counter;
 import entity.Post;
 import entity.User;
 
@@ -32,6 +33,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import repository.PostRepository;
+import shardedcounter.ShardedCounter;
 import repository.UserRepository;
 
 @Api(name = "tinyinsta", version = "v1", namespace = @ApiNamespace(ownerDomain = "tinyinsta.example.com", ownerName = "tinyinsta.example.com", packagePath = "services"))
@@ -203,6 +205,7 @@ public class TinyInstaEndpoint {
 
         if (user != null && post != null) {
             post.addLike(user.getId());
+            PostRepository.getInstance().addToLikeCounter(post);
             PostRepository.getInstance().updatePost(post);
 
             logger.log(Level.INFO, "[SUCCESS] User {0} likes Post {1}", new Object[]{user.getId(), post.getPostId()});
@@ -223,6 +226,7 @@ public class TinyInstaEndpoint {
 
         if (user != null && post != null) {
             post.removeLike(user.getId());
+            PostRepository.getInstance().removeFromLikeCounter(post);
             PostRepository.getInstance().updatePost(post);
 
             logger.log(Level.INFO, "[SUCCESS] User {0} unlikes Post {1}", new Object[]{user.getId(), post.getPostId()});
@@ -299,7 +303,6 @@ public class TinyInstaEndpoint {
     -- GET
     ----------------------
      */
-
     @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all")
     public Collection<Post> getAllPosts(@Nullable @Named("limit") @DefaultValue("50") int limit) {
         logger.log(Level.INFO, "Getting all posts");
@@ -321,9 +324,9 @@ public class TinyInstaEndpoint {
     ) {
         User user = UserRepository.getInstance().getUserById(userId);
         Collection<Post> news = new ArrayList<>();
-        for(Long id : user.getFollowing()){
-            news.addAll(PostRepository.getInstance().getPostsByUser(id,limit));
-        }
+        user.getFollowing().forEach((id) -> {
+            news.addAll(PostRepository.getInstance().getPostsByUser(id, limit));
+        });
         return news;
     }
 
@@ -332,7 +335,6 @@ public class TinyInstaEndpoint {
     -- UPDATE
     ----------------------
      */
-    
     //
     @ApiMethod(name = "updatePost", httpMethod = HttpMethod.PUT, path = "post/{postId}/update")
     public Post updatePost(
@@ -359,7 +361,6 @@ public class TinyInstaEndpoint {
     -- DELETE
     ----------------------
      */
-
     @ApiMethod(name = "deletePost", httpMethod = HttpMethod.DELETE, path = "post/delete/{postId}")
     public void deletePost(@Named("postId") Long postId) {
         PostRepository.getInstance().deletePost(postId);
@@ -368,6 +369,11 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "deleteAllPosts", httpMethod = HttpMethod.DELETE, path = "post/delete/all")
     public void deleteAllPosts() {
         PostRepository.getInstance().deleteAll();
+    }
+    
+    @ApiMethod(name = "getAllCounter", httpMethod = HttpMethod.GET, path = "counter/all")
+    public Collection<Counter> getAllCounter(){
+        return ShardedCounter.getAllCounter();
     }
 
 }

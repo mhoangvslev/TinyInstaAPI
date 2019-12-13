@@ -1,24 +1,26 @@
 package repository;
 
-import com.googlecode.objectify.Key;
+import shardedcounter.ShardedCounter;
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.cmd.Deleter;
 import com.googlecode.objectify.cmd.LoadType;
-import com.googlecode.objectify.cmd.Saver;
+import endpoint.TinyInstaEndpoint;
 import entity.Post;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import static repository.RepositoryService.ofy;
+import java.util.logging.Logger;
+import static repository.RepositoryService.*;
 
 /**
  *
  * @author acoussea
  */
-public class PostRepository {
+public class PostRepository extends RepositoryService {
 
     private static PostRepository postRepo;
+    private static final String LIKE_COUNTER_PREFIX = "like_counter#";
+
+    private static final Logger LOGGER = Logger.getLogger(TinyInstaEndpoint.class.getName());
 
     static {
         ObjectifyService.register(Post.class);
@@ -27,16 +29,8 @@ public class PostRepository {
     private PostRepository() {
     }
 
-    public LoadType query() {
-        return ofy().load().type(Post.class);
-    }
-
-    public Saver save() {
-        return ofy().save();
-    }
-
-    public Deleter delete() {
-        return ofy().delete();
+    private LoadType query() {
+        return query(Post.class);
     }
 
     public static synchronized PostRepository getInstance() {
@@ -47,15 +41,18 @@ public class PostRepository {
     }
 
     // POST
-    public Post createPost(Post post){
+    public Post createPost(Post post) {
         save().entity(post).now();
+
+        String name = PostRepository.LIKE_COUNTER_PREFIX + post.getPostId();
+        ShardedCounter.createShardedCounter(name);
         return post;
     }
 
     //PUT
     public Post updatePost(Post update) {
         Long id = update.getPostId();
-        if (id == null){
+        if (id == null) {
             return null;
         }
         Post target = this.getPostById(id);
@@ -68,6 +65,26 @@ public class PostRepository {
         return null;
     }
 
+    public void addToLikeCounter(Post p) {
+        String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
+        ShardedCounter counter = ShardedCounter.getShardedCounter(name);
+
+        if (p.getLikes() + 1 <= p.getLikedBy().size()) {
+            counter.increment();
+            p.setLikes(counter.getCount());
+        }
+
+    }
+
+    public void removeFromLikeCounter(Post p) {
+        String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
+        ShardedCounter counter = ShardedCounter.getShardedCounter(name);
+
+        if (p.getLikes() > 1) {
+            counter.decrement();
+            p.setLikes(counter.getCount());
+        }
+    }
 
     // GET
     public Collection<Post> getAllPost(int limit) {
@@ -78,7 +95,7 @@ public class PostRepository {
         return (Post) query().id(id).now();
     }
 
-    public Collection<Post> getPostsByDate(Date date, int limit){
+    public Collection<Post> getPostsByDate(Date date, int limit) {
         return query().filter("date =", date).limit(limit).list();
     }
 
@@ -88,16 +105,17 @@ public class PostRepository {
 
     // DELETE
     public void deletePost(Long id) {
+        ShardedCounter.getShardedCounter(LIKE_COUNTER_PREFIX + id).deleteCounter();
         delete().type(Post.class).id(id).now();
     }
-    
-    public int deletePosts(Collection<Post> posts){
-        
+
+    public int deletePosts(Collection<Post> posts) {
+
         HashSet<Long> ids = new HashSet<>();
         posts.forEach((p) -> {
             ids.add(p.getPostId());
         });
-        
+
         delete().type(Post.class).ids(ids).now();
         return ids.size();
     }

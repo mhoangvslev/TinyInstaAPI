@@ -24,10 +24,26 @@ curl --request GET \
   --header 'Content-Type: application/json' \
   --compressed
 
-curl --request POST \
-  'http://localhost:8080/_ah/api/tinyinsta/v1/user/register/el_cousseau/Axel/avatar1' \
+curl --request GET \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/counter/all' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
+  --compressed
+
+curl --request POST \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/register/mhoangslev/Hoang/avatar1' \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --compressed
+
+curl --request PUT \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/3/like/2' \
+  --header 'Accept: application/json' \
+  --compressed
+
+curl --request PUT \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/1/unlike/2' \
+  --header 'Accept: application/json' \
   --compressed
 
 curl --request PUT \
@@ -42,6 +58,11 @@ curl --request GET \
 
 curl --request DELETE \
   'http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/1' \
+  --header 'Accept: application/json' \
+  --compressed
+
+curl --request DELETE \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/post/delete/1' \
   --header 'Accept: application/json' \
   --compressed
 
