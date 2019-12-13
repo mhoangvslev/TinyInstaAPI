@@ -24,6 +24,8 @@ import com.googlecode.objectify.Work;
 import com.googlecode.objectify.cmd.Deleter;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Saver;
+import entity.Counter;
+import entity.CounterShard;
 import entity.Post;
 import entity.User;
 
@@ -37,6 +39,8 @@ public abstract class RepositoryService {
         // Register all classes
         ObjectifyService.register(User.class);
         ObjectifyService.register(Post.class);
+        ObjectifyService.register(Counter.class);
+        ObjectifyService.register(CounterShard.class);
     }
     
     private static Objectify ofy() {

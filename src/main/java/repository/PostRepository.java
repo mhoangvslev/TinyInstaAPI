@@ -80,7 +80,7 @@ public class PostRepository extends RepositoryService {
         String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
         ShardedCounter counter = ShardedCounter.getShardedCounter(name);
 
-        if (p.getLikes() > 1) {
+        if (p.getLikes() >= 1) {
             counter.decrement();
             p.setLikes(counter.getCount());
         }
@@ -113,6 +113,8 @@ public class PostRepository extends RepositoryService {
 
         HashSet<Long> ids = new HashSet<>();
         posts.forEach((p) -> {
+            Long postId = p.getPostId();
+            ShardedCounter.getShardedCounter(LIKE_COUNTER_PREFIX + postId).deleteCounter();
             ids.add(p.getPostId());
         });
 
@@ -122,5 +124,6 @@ public class PostRepository extends RepositoryService {
 
     public void deleteAll() {
         delete().keys(query().keys());
+        ShardedCounter.deleteAllCounter();
     }
 }

@@ -231,4 +231,9 @@ public class ShardedCounter extends RepositoryService {
             delete().type(Counter.class).id(name).now();
         }
     }
+    
+    public static void deleteAllCounter(){
+        delete().keys(query(CounterShard.class).keys());
+        delete().keys(query(Counter.class).keys());
+    }
 }
