@@ -16,20 +16,18 @@
 package repository;
 
 import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.cmd.Deleter;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
-import com.googlecode.objectify.cmd.Saver;
 import entity.User;
 import java.util.Collection;
-import java.util.List;
-import static repository.RepositoryService.ofy;
+import static repository.RepositoryService.*;
+import services.ImageServlet;
 
 /**
  *
  * @author minhhoangdang
  */
-public class UserRepository {
+public class UserRepository extends RepositoryService {
 
     private static UserRepository repo;
 
@@ -41,15 +39,7 @@ public class UserRepository {
     }
 
     private LoadType query() {
-        return ofy().load().type(User.class);
-    }
-
-    private Saver save() {
-        return ofy().save();
-    }
-
-    private Deleter delete() {
-        return ofy().delete();
+        return query(User.class);
     }
 
     public static synchronized UserRepository getInstance() {
@@ -100,7 +90,7 @@ public class UserRepository {
 
     private Query queryFilter(Query q, String propertyName, Object propertyValue, int limit) {
         Query res = q == null ? query() : q;
-        return res.filter(propertyName + "=", propertyValue).limit(limit);
+        return res.filter(propertyName + " = ", propertyValue).limit(limit);
     }
 
     public Collection<User> getUserByUserName(String username, int limit) {
@@ -113,10 +103,18 @@ public class UserRepository {
 
     // DELETE
     public void deleteUser(Long userId) {
+        User u = (User) query().id(userId).now();
+        if (u != null) {
+            ImageServlet.removeBlob(u.getAvatarURL());
+        }
         delete().type(User.class).id(userId).now();
     }
 
     public void deleteAll() {
+        String[] blobNames = getAllUser(Integer.MAX_VALUE).stream()
+                .map((user) -> (user.getAvatarURL()))
+                .toArray(String[]::new);
+        ImageServlet.removeBlob(blobNames);
         delete().keys(query().keys());
     }
 }

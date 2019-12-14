@@ -19,6 +19,9 @@ import com.google.appengine.api.utils.SystemProperty;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
+import entity.Counter;
+import entity.CounterShard;
+import entity.Post;
 import entity.User;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -46,6 +49,9 @@ public class RepositoryBootstrapper implements ServletContextListener {
 
         // Register all classes
         ObjectifyService.register(User.class);
+        ObjectifyService.register(Post.class);
+        ObjectifyService.register(Counter.class);
+        ObjectifyService.register(CounterShard.class);
 
         // Begin
         ObjectifyService.begin();

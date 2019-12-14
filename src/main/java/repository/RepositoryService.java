@@ -15,8 +15,17 @@
  */
 package repository;
 
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.LoadResult;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.TxnType;
+import com.googlecode.objectify.Work;
+import com.googlecode.objectify.cmd.Deleter;
+import com.googlecode.objectify.cmd.LoadType;
+import com.googlecode.objectify.cmd.Saver;
+import entity.Counter;
+import entity.CounterShard;
 import entity.Post;
 import entity.User;
 
@@ -24,15 +33,41 @@ import entity.User;
  *
  * @author minhhoangdang
  */
-public class RepositoryService {
+public abstract class RepositoryService {
 
     static {
         // Register all classes
         ObjectifyService.register(User.class);
         ObjectifyService.register(Post.class);
+        ObjectifyService.register(Counter.class);
+        ObjectifyService.register(CounterShard.class);
+    }
+    
+    private static Objectify ofy() {
+        return ObjectifyService.ofy();
+    }
+    
+    public static LoadType query(Class<?> aClass) {
+        return ofy().load().type(aClass);
+    }
+    
+    public static Saver save() {
+        return ofy().save();
+    }
+    
+    public LoadResult query(Key<?> k){
+        return ofy().load().key(k);
     }
 
-    public static Objectify ofy() {
-        return ObjectifyService.ofy();
+    public static Deleter delete() {
+        return ofy().delete();
+    }
+    
+    public static Object transact(Work<?> work){
+        return ofy().transact(work);
+    }
+    
+    public static Object execute(TxnType transactionType, Work<?> work){
+        return ofy().execute(transactionType, work);
     }
 }

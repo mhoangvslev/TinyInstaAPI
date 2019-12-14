@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 
+@Cache
 @Entity
 public class Post {
 
@@ -17,7 +18,8 @@ public class Post {
 
     private String imageUrl;
     private String caption;
-    
+
+    private Long likes = 0L;
     private HashSet<Long> likedBy = new HashSet<>();
 
     @Index
@@ -90,6 +92,14 @@ public class Post {
 
     public void setPostedBy(Long postedBy) {
         this.postedBy = postedBy;
+    }
+
+    public Long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Long likes) {
+        this.likes = likes;
     }
 
     @Override
