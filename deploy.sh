@@ -1,6 +1,3 @@
-echo "Starting local datastore emulator..."
-gnome-terminal -- sh -c 'gcloud beta emulators datastore start --host-port=localhost:8484 --no-store-on-disk'
-
 echo "Rebuild project..."
 mvn versions:use-latest-releases
 mvn clean package -U;

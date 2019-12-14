@@ -37,17 +37,17 @@ public class ImageServlet extends HttpServlet {
 
     public static void removeBlob(String... blobKeysNames) {
         BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-        BlobKey[] blobsKeys = (BlobKey[]) Arrays.asList(blobKeysNames).stream()
+        BlobKey[] blobsKeys = Arrays.asList(blobKeysNames).stream()
                 .map((keyName) -> (new BlobKey(keyName)))
-                .toArray();
+                .toArray(BlobKey[]::new);
         blobstoreService.delete(blobsKeys);
     }
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (req.getParameter("avatar-blob") != null) {
+        if (req.getParameter("blob-key") != null) {
 
-            BlobKey blobKey = new BlobKey(req.getParameter("avatar-blob"));
+            BlobKey blobKey = new BlobKey(req.getParameter("blob-key"));
             ImagesService imagesService = ImagesServiceFactory.getImagesService();
             String urlImage = imagesService.getServingUrl(ServingUrlOptions.Builder.withBlobKey(blobKey));
 

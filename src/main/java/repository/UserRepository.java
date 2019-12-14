@@ -28,20 +28,20 @@ import services.ImageServlet;
  * @author minhhoangdang
  */
 public class UserRepository extends RepositoryService {
-    
+
     private static UserRepository repo;
-    
+
     static {
         ObjectifyService.register(User.class);
     }
-    
+
     private UserRepository() {
     }
-    
+
     private LoadType query() {
         return query(User.class);
     }
-    
+
     public static synchronized UserRepository getInstance() {
         if (repo == null) {
             repo = new UserRepository();
@@ -61,9 +61,9 @@ public class UserRepository extends RepositoryService {
         if (id == null) {
             return null;
         }
-        
+
         User target = this.getUserById(id);
-        
+
         if (target != null) {
             target.setUsername(update.getUsername());
             target.setFollowers(update.getFollowers());
@@ -79,24 +79,24 @@ public class UserRepository extends RepositoryService {
     public Collection<User> getAllUser(int limit) {
         return query().limit(limit).list();
     }
-    
+
     public User getUserById(Long id) {
         return (User) query().id(id).now();
     }
-    
+
     public Collection<User> getUsersByIds(Collection<Long> ids) {
         return query().ids(ids).values();
     }
-    
+
     private Query queryFilter(Query q, String propertyName, Object propertyValue, int limit) {
         Query res = q == null ? query() : q;
         return res.filter(propertyName + " = ", propertyValue).limit(limit);
     }
-    
+
     public Collection<User> getUserByUserName(String username, int limit) {
         return queryFilter(null, "username", username, limit).list();
     }
-    
+
     public Collection<User> getUserByName(String name, int limit) {
         return queryFilter(null, "name", name, limit).list();
     }
@@ -104,12 +104,16 @@ public class UserRepository extends RepositoryService {
     // DELETE
     public void deleteUser(Long userId) {
         User u = (User) query().id(userId).now();
-        ImageServlet.removeBlob(u.getAvatarURL());
+        if (u != null) {
+            ImageServlet.removeBlob(u.getAvatarURL());
+        }
         delete().type(User.class).id(userId).now();
     }
-    
+
     public void deleteAll() {
-        String[] blobNames = (String[]) getAllUser(Integer.MAX_VALUE).stream().map((user) -> (user.getAvatarURL())).toArray();
+        String[] blobNames = getAllUser(Integer.MAX_VALUE).stream()
+                .map((user) -> (user.getAvatarURL()))
+                .toArray(String[]::new);
         ImageServlet.removeBlob(blobNames);
         delete().keys(query().keys());
     }

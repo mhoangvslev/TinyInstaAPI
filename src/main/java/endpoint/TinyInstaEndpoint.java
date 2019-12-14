@@ -39,8 +39,16 @@ import repository.UserRepository;
 @Api(name = "tinyinsta", version = "v1", namespace = @ApiNamespace(ownerDomain = "tinyinsta.example.com", ownerName = "tinyinsta.example.com", packagePath = "services"))
 public class TinyInstaEndpoint {
 
+    private static TinyInstaEndpoint instance;
     private static final Logger logger = Logger.getLogger(TinyInstaEndpoint.class.getName());
     private static final int QUERY_MAX_LIMIT = Integer.MAX_VALUE;
+
+    public static TinyInstaEndpoint getInstance() {
+        if (instance == null) {
+            return new TinyInstaEndpoint();
+        }
+        return instance;
+    }
 
     /*
     ===================================================================================
@@ -61,7 +69,7 @@ public class TinyInstaEndpoint {
      * @param avatarURL
      * @return le nouvelle
      */
-    @ApiMethod(name = "register", httpMethod = HttpMethod.POST, path = "user/register/{username}/{name}/{avatarURL}")
+    @ApiMethod(name = "register", httpMethod = HttpMethod.POST, path = "user/register")
     public User register(
             @Named("username") String username,
             @Named("name") String name,
@@ -92,7 +100,7 @@ public class TinyInstaEndpoint {
      */
     @ApiMethod(name = "getAllUsers", httpMethod = HttpMethod.GET, path = "user/all")
     public Collection<User> getAllUsers(@Nullable @Named("limit") @DefaultValue("50") int limit) {
-        logger.log(Level.INFO, "[SUCCESS] Getting all users, return size {0}", limit);
+        logger.log(Level.INFO, "[SUCCESS] Getting all users, return limit {0}", limit);
         return UserRepository.getInstance().getAllUser(limit);
     }
 
