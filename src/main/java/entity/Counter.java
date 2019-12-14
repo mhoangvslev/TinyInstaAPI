@@ -19,7 +19,7 @@ import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import java.util.HashSet;
-import shardedcounter.ShardedCounter;
+import services.ShardedCounter;
 
 /**
  *

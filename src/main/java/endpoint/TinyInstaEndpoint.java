@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import repository.PostRepository;
-import shardedcounter.ShardedCounter;
+import services.ShardedCounter;
 import repository.UserRepository;
 
 @Api(name = "tinyinsta", version = "v1", namespace = @ApiNamespace(ownerDomain = "tinyinsta.example.com", ownerName = "tinyinsta.example.com", packagePath = "services"))
@@ -370,9 +370,9 @@ public class TinyInstaEndpoint {
     public void deleteAllPosts() {
         PostRepository.getInstance().deleteAll();
     }
-    
+
     @ApiMethod(name = "getAllCounter", httpMethod = HttpMethod.GET, path = "counter/all")
-    public Collection<Counter> getAllCounter(){
+    public Collection<Counter> getAllCounter() {
         return ShardedCounter.getAllCounter();
     }
 

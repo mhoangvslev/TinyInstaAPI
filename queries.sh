@@ -31,7 +31,7 @@ curl --request GET \
   --compressed
 
 curl --request POST \
-  'http://localhost:8080/_ah/api/tinyinsta/v1/user/register/mhoangslev/Hoang/avatar1' \
+  'https://tinyinstagram.appspot.com/_ah/api/tinyinsta/v1/user/register/zwalsh/Zoe/AMIfv95F-3cz2TeKBBjMMvo3HIINt30JocXTw8FfxpawA6wuGqcnT-Seb523vdDpvWI6HBjbchpQVMeiDn_HTGtc630K0Oz7HFYbtEIjCMf_maax1gcGMURxlXn1ORn_1cgFFalRhKYKr--7lcCNdDIEd1rzfpg57FJGIo-f73FbJecGCLDXs9LFQK-HG8fmg79J1-WWy6ZZy1lT25RI8cbbFYXfNwoIB2MGBr-zBul8NJTzEodaU3p2HM8Qup3FMp-2xG6z-OXEtdtMaRNt8cohunO2spHu1w' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --compressed

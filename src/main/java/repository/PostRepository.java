@@ -1,6 +1,6 @@
 package repository;
 
-import shardedcounter.ShardedCounter;
+import services.ShardedCounter;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.LoadType;
 import endpoint.TinyInstaEndpoint;
