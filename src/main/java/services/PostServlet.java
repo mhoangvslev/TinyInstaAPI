@@ -86,14 +86,17 @@ public class PostServlet extends HttpServlet {
 
         if (p == null) {
             ImageServlet.removeBlob(imgBlobKey.getKeyString());
+            resp.sendRedirect(req.getHeader("referer") + "#/post/" + req.getParameter("actionType"));
+        } else {
+            resp.sendRedirect(req.getHeader("referer") + "#!/user/" + p.getPostedBy());
         }
 
-        resp.setContentType("application/json");
+        /*resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(out, p);
-        out.flush();
+        out.flush();*/
     }
 
 }

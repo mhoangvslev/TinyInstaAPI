@@ -11,7 +11,7 @@ sed -i 's/myapi.appspot.com/tinyinstagram.appspot.com/' target/openapi-docs/open
 
 echo "Deploying the OpenAPI configuration file..."
 gcloud components update
-gcloud endpoints services deploy target/openapi-docs/openapi.json
+#gcloud endpoints services deploy target/openapi-docs/openapi.json
 #gcloud services list
 
 echo "Runiing locally the server..."
