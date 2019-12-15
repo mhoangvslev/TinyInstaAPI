@@ -40,6 +40,10 @@ public class Benchmark {
         return new Gson().fromJson(json, User.class);
     }
 
+    private static Post postFromJson(String json){
+        return new Gson().fromJson(json,Post.class);
+    }
+
     private static String getEndpoint() {
         return (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production)
                 ? "https://tinyinstagram.appspot.com/"
@@ -89,10 +93,29 @@ public class Benchmark {
      * Test 2: How much time it takes to retrieve the last 10, 100 and 500 last
      * messages ? (average of 30 measures)
      */
+    public static long testRecupPost(int nbPost) throws IOException {
+
+        // createUser
+        User owner = userFromJSON(Benchmark.createUser("username0", "name0", "avatar0"));
+
+        // Create posts
+        for (int i = 1; i <= nbPost; i++) {
+            Post p = postFromJson(Benchmark.createPost(owner.getUserId(),"test","test"));
+        }
+
+        long startTime = new Date().getTime();
+        Benchmark.getNewsFeed(owner.getUserId(),nbPost);
+
+        long endTime = new Date().getTime();
+        Benchmark.deleteAll();
+        return endTime - startTime;
+    }
+
     /**
      * Test 3: How much “likes” can you do per second ?? (average on 30
      * measures)
      */
+
     /*
      * =============================== 
      * - API Methods
@@ -211,5 +234,9 @@ public class Benchmark {
         System.out.println("Test 1 (10) score: " + Benchmark.testPostMessageAndNotify(100) + " ms");
         //System.out.println("Test 1 (100) score: " + Benchmark.testPostMessageAndNotify(100) + " ms");
         //System.out.println("Test 1 (500) score: " + Benchmark.testPostMessageAndNotify(500) + " ms");
+
+        System.out.println("Test 2 (10) : " + Benchmark.testRecupPost(10) + "ms");
+        System.out.println("Test 2 (100) : " + Benchmark.testRecupPost(100) + "ms");
+        System.out.println("Test 2 (500) : " + Benchmark.testRecupPost(500) + "ms");
     }
 }
