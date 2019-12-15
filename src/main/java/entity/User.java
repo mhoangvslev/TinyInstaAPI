@@ -23,7 +23,6 @@ import java.util.Objects;
  *
  * @author minhhoangdang
  */
-
 @Cache
 @Entity
 public class User {
@@ -52,12 +51,12 @@ public class User {
         this.avatarURL = avatarURL;
     }
 
-    public Long getId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setId(Long id) {
-        this.userId = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {

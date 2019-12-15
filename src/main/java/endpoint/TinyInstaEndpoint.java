@@ -24,8 +24,8 @@ import com.google.api.server.spi.config.Named;
 import entity.Counter;
 import entity.Post;
 import entity.User;
+import java.util.Arrays;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -94,22 +94,29 @@ public class TinyInstaEndpoint {
     -- GET
     ----------------------
      */
-
     @ApiMethod(name = "findUser", httpMethod = HttpMethod.GET, path = "user/find")
     public Collection<User> findUser(
-            @Nullable @Named("username") @DefaultValue("") String username,
-            @Nullable @Named("name") @DefaultValue("") String name,
+            @Nullable @Named("userId") Long userId,
+            @Nullable @Named("username") String username,
+            @Nullable @Named("name") String name,
             @Nullable @Named("limit") @DefaultValue("50") int limit) {
 
+        // When userId is filled, no need to do the rest
+        if (userId != null) {
+            return Arrays.asList(
+                    new User[]{UserRepository.getInstance().getUserById(userId)}
+            );
+        }
+
         // When neither field are filled
-        if (("".equals(username) && "".equals(name))) {
+        if (username == null && name == null) {
             return UserRepository.getInstance().getAllUser(limit);
         } // When only name is filled
-        else if (!"".equals(username) && "".equals(name)) {
-            return UserRepository.getInstance().getUserByUserName(username, limit);
-        } // When only username is filled
-        else if (!"".equals(name) && "".equals(username)) {
+        else if (username == null && name != null) {
             return UserRepository.getInstance().getUserByName(name, limit);
+        } // When only username is filled
+        else if (name == null && username != null) {
+            return UserRepository.getInstance().getUserByUserName(username, limit);
         } // When both username and name are filled
         else {
             return UserRepository.getInstance()
@@ -184,8 +191,8 @@ public class TinyInstaEndpoint {
         User target = UserRepository.getInstance().getUserById(targetId);
 
         if (user != null && target != null) {
-            target.addFollower(user.getId());
-            user.addFollowing(target.getId());
+            target.addFollower(user.getUserId());
+            user.addFollowing(target.getUserId());
 
             UserRepository.getInstance().updateUser(target);
             UserRepository.getInstance().updateUser(user);
@@ -206,8 +213,8 @@ public class TinyInstaEndpoint {
         User target = UserRepository.getInstance().getUserById(targetId);
 
         if (user != null && target != null) {
-            target.removeFollower(user.getId());
-            user.removeFollowing(target.getId());
+            target.removeFollower(user.getUserId());
+            user.removeFollowing(target.getUserId());
 
             UserRepository.getInstance().updateUser(target);
             UserRepository.getInstance().updateUser(user);
@@ -230,11 +237,11 @@ public class TinyInstaEndpoint {
         Post post = PostRepository.getInstance().getPostById(postId);
 
         if (user != null && post != null) {
-            post.addLike(user.getId());
+            post.addLike(user.getUserId());
             PostRepository.getInstance().addToLikeCounter(post);
             PostRepository.getInstance().updatePost(post);
 
-            logger.log(Level.INFO, "[SUCCESS] User {0} likes Post {1}", new Object[]{user.getId(), post.getPostId()});
+            logger.log(Level.INFO, "[SUCCESS] User {0} likes Post {1}", new Object[]{user.getUserId(), post.getPostId()});
             return post;
         }
 
@@ -251,11 +258,11 @@ public class TinyInstaEndpoint {
         Post post = PostRepository.getInstance().getPostById(postId);
 
         if (user != null && post != null) {
-            post.removeLike(user.getId());
+            post.removeLike(user.getUserId());
             PostRepository.getInstance().removeFromLikeCounter(post);
             PostRepository.getInstance().updatePost(post);
 
-            logger.log(Level.INFO, "[SUCCESS] User {0} unlikes Post {1}", new Object[]{user.getId(), post.getPostId()});
+            logger.log(Level.INFO, "[SUCCESS] User {0} unlikes Post {1}", new Object[]{user.getUserId(), post.getPostId()});
             return post;
         }
 
@@ -308,7 +315,7 @@ public class TinyInstaEndpoint {
 
         User owner = UserRepository.getInstance().getUserById(ownerId);
         if (owner != null) {
-            Post post = new Post(imageURL, caption, owner.getId(), new Date());
+            Post post = new Post(imageURL, caption, owner.getUserId(), new Date());
 
             Collection<Post> decoy = PostRepository.getInstance().getPostsByUser(ownerId, QUERY_MAX_LIMIT);
             if (!decoy.contains(post)) {
@@ -337,7 +344,12 @@ public class TinyInstaEndpoint {
         return PostRepository.getInstance().getAllPost(limit);
     }
 
-    @ApiMethod(name = "getPostsByUser", httpMethod = HttpMethod.GET, path = "post/{userId}")
+    @ApiMethod(name = "getPostById", httpMethod = HttpMethod.GET, path = "post/{postId}")
+    public Post getPostById(@Named("postId") Long postId) {
+        return PostRepository.getInstance().getPostById(postId);
+    }
+
+    @ApiMethod(name = "getPostsByUser", httpMethod = HttpMethod.GET, path = "user/{userId}/posts")
     public Collection<Post> getPostsByUser(
             @Named("userId") Long userId,
             @Nullable
@@ -355,11 +367,15 @@ public class TinyInstaEndpoint {
             @DefaultValue("50") int limit
     ) {
         User user = UserRepository.getInstance().getUserById(userId);
-        Collection<Post> news = new ArrayList<>();
-        user.getFollowing().forEach((id) -> {
-            news.addAll(PostRepository.getInstance().getPostsByUser(id, limit));
-        });
-        return news;
+        if (user != null) {
+            HashSet<Post> news = new HashSet<>();
+            user.getFollowing().forEach((id) -> {
+                news.addAll(PostRepository.getInstance().getPostsByUser(id, limit));
+            });
+            return news;
+
+        }
+        return null;
     }
 
     /*

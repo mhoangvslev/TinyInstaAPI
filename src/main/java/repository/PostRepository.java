@@ -88,7 +88,7 @@ public class PostRepository extends RepositoryService {
 
     // GET
     public Collection<Post> getAllPost(int limit) {
-        return query().limit(limit).list();
+        return query().limit(limit).order("-date").list();
     }
 
     public Post getPostById(Long id) {
@@ -100,7 +100,7 @@ public class PostRepository extends RepositoryService {
     }
 
     public Collection<Post> getPostsByUser(Long postedBy, int limit) {
-        return query().filter("postedBy =", postedBy).limit(limit).list();
+        return query().filter("postedBy =", postedBy).limit(limit).order("-date").list();
     }
 
     // DELETE

@@ -57,7 +57,7 @@ public class UserRepository extends RepositoryService {
 
     // PUT
     public User updateUser(User update) {
-        Long id = update.getId();
+        Long id = update.getUserId();
         if (id == null) {
             return null;
         }
