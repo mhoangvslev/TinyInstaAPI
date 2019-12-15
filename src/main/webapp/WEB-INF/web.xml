@@ -26,6 +26,10 @@
         <servlet-class>services.UserServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>PostServlet</servlet-name>
+        <servlet-class>services.PostServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>ImageServlet</servlet-name>
         <servlet-class>services.ImageServlet</servlet-class>
     </servlet>
@@ -36,7 +40,11 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UserServlet</servlet-name>
-        <url-pattern>/_servlet/user-tools</url-pattern>
+        <url-pattern>/_servlet/user-util</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PostServlet</servlet-name>
+        <url-pattern>/_servlet/post-util</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ImageServlet</servlet-name>
