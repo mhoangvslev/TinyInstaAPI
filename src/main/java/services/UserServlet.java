@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.blobstore.UploadOptions;
 import endpoint.TinyInstaEndpoint;
 import entity.User;
 import java.io.IOException;
@@ -37,18 +38,54 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class UserServlet extends HttpServlet {
 
-    private static final Logger logger = Logger.getLogger(TinyInstaEndpoint.class.getName());
+    private static final Logger logger = Logger.getLogger(UserServlet.class.getName());
 
     @Override
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String response = null;
+
+        if (req.getParameter("action") != null) {
+            switch (req.getParameter("action")) {
+                case "get-upload-url":
+                    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+                    response = blobstoreService.createUploadUrl("/_servlet/user-util",
+                            UploadOptions.Builder.withGoogleStorageBucketName("tinyinsta-image-service"));
+                    break;
+                
+                default:
+                    break;
+            }
+        }
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        PrintWriter out = resp.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(out, response);
+        out.flush();
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
         Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
         BlobKey avatarBlobKey = blobs.get("avatar").get(0);
 
-        User u = TinyInstaEndpoint.getInstance().register(req.getParameter("username"), req.getParameter("name"), avatarBlobKey.getKeyString());
-        
-        if(u == null){
+        User u = null;
+        if (req.getParameter("actionType").equals("create")) {
+            u = TinyInstaEndpoint.getInstance().register(
+                    req.getParameter("username"),
+                    req.getParameter("name"),
+                    avatarBlobKey.getKeyString());
+        } else if (req.getParameter("actionType").equals("update")) {
+            u = TinyInstaEndpoint.getInstance().updateUser(
+                    Long.parseLong(req.getParameter("userId")),
+                    req.getParameter("username"),
+                    req.getParameter("name"),
+                    avatarBlobKey.getKeyString());
+        }
+
+        if (u == null) {
             ImageServlet.removeBlob(avatarBlobKey.getKeyString());
         }
 

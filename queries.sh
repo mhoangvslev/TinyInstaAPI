@@ -70,6 +70,3 @@ curl --request DELETE \
   'http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/all' \
   --header 'Accept: application/json' \
   --compressed
-
-429571425798-l9fsg0det5mmubaqcgmb8lq5noeofhgr.apps.googleusercontent.com
-6lO-qt5CQHo0AhohhGJLFpK5

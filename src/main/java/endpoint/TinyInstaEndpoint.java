@@ -28,6 +28,7 @@ import entity.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -93,15 +94,29 @@ public class TinyInstaEndpoint {
     -- GET
     ----------------------
      */
-    /**
-     *
-     * @param limit query results size limit
-     * @return
-     */
-    @ApiMethod(name = "getAllUsers", httpMethod = HttpMethod.GET, path = "user/all")
-    public Collection<User> getAllUsers(@Nullable @Named("limit") @DefaultValue("50") int limit) {
-        logger.log(Level.INFO, "[SUCCESS] Getting all users, return limit {0}", limit);
-        return UserRepository.getInstance().getAllUser(limit);
+
+    @ApiMethod(name = "findUser", httpMethod = HttpMethod.GET, path = "user/find")
+    public Collection<User> findUser(
+            @Nullable @Named("username") @DefaultValue("") String username,
+            @Nullable @Named("name") @DefaultValue("") String name,
+            @Nullable @Named("limit") @DefaultValue("50") int limit) {
+
+        // When neither field are filled
+        if (("".equals(username) && "".equals(name))) {
+            return UserRepository.getInstance().getAllUser(limit);
+        } // When only name is filled
+        else if (!"".equals(username) && "".equals(name)) {
+            return UserRepository.getInstance().getUserByUserName(username, limit);
+        } // When only username is filled
+        else if (!"".equals(name) && "".equals(username)) {
+            return UserRepository.getInstance().getUserByName(name, limit);
+        } // When both username and name are filled
+        else {
+            return UserRepository.getInstance()
+                    .query().filter("username", username)
+                    .filter("name", name)
+                    .list();
+        }
     }
 
     @ApiMethod(name = "getFollowers", httpMethod = HttpMethod.GET, path = "user/{userId}/followers")
@@ -132,9 +147,12 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "updateUser", httpMethod = HttpMethod.PUT, path = "user/{userId}/update")
     public User updateUser(
             @Named("userId") Long targetId,
-            @Nullable @Named("username") String username,
-            @Nullable @Named("name") String name,
-            @Nullable @Named("avatarURL") String avatarURL
+            @Nullable
+            @Named("username") String username,
+            @Nullable
+            @Named("name") String name,
+            @Nullable
+            @Named("avatarURL") String avatarURL
     ) {
         User target = UserRepository.getInstance().getUserById(targetId);
 
@@ -312,7 +330,9 @@ public class TinyInstaEndpoint {
     ----------------------
      */
     @ApiMethod(name = "getAllPosts", httpMethod = HttpMethod.GET, path = "post/all")
-    public Collection<Post> getAllPosts(@Nullable @Named("limit") @DefaultValue("50") int limit) {
+    public Collection<Post> getAllPosts(@Nullable
+            @Named("limit")
+            @DefaultValue("50") int limit) {
         logger.log(Level.INFO, "Getting all posts");
         return PostRepository.getInstance().getAllPost(limit);
     }
@@ -320,7 +340,9 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "getPostsByUser", httpMethod = HttpMethod.GET, path = "post/{userId}")
     public Collection<Post> getPostsByUser(
             @Named("userId") Long userId,
-            @Nullable @Named("limit") @DefaultValue("50") int limit
+            @Nullable
+            @Named("limit")
+            @DefaultValue("50") int limit
     ) {
         return PostRepository.getInstance().getPostsByUser(userId, limit);
     }
@@ -328,7 +350,9 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "getPostsByFollow", httpMethod = HttpMethod.GET, path = "post/followed/{userId}")
     public Collection<Post> getPostsByFollow(
             @Named("userId") Long userId,
-            @Nullable @Named("limit") @DefaultValue("50") int limit
+            @Nullable
+            @Named("limit")
+            @DefaultValue("50") int limit
     ) {
         User user = UserRepository.getInstance().getUserById(userId);
         Collection<Post> news = new ArrayList<>();
@@ -347,8 +371,10 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "updatePost", httpMethod = HttpMethod.PUT, path = "post/{postId}/update")
     public Post updatePost(
             @Named("postId") Long postId,
-            @Nullable @Named("caption") String caption,
-            @Nullable @Named("imageUrl") String imageUrl
+            @Nullable
+            @Named("caption") String caption,
+            @Nullable
+            @Named("imageUrl") String imageUrl
     ) {
         Post target = PostRepository.getInstance().getPostById(postId);
 

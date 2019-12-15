@@ -38,7 +38,7 @@ public class UserRepository extends RepositoryService {
     private UserRepository() {
     }
 
-    private LoadType query() {
+    public LoadType query() {
         return query(User.class);
     }
 
@@ -88,7 +88,7 @@ public class UserRepository extends RepositoryService {
         return query().ids(ids).values();
     }
 
-    private Query queryFilter(Query q, String propertyName, Object propertyValue, int limit) {
+    public Query queryFilter(Query q, String propertyName, Object propertyValue, int limit) {
         Query res = q == null ? query() : q;
         return res.filter(propertyName + " = ", propertyValue).limit(limit);
     }
