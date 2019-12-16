@@ -29,3 +29,14 @@ buildNumber.properties
 .metadata/
 
 .settings/
+
+.project
+
+.classpath
+
+.idea/
+
+*.iml
+
+src/main/webapp/**/*
+!src/main/webapp/WEB-INF/**/*
