@@ -19,7 +19,7 @@ curl --request GET \
   --compressed
 
 curl --request GET \
-  'http://localhost:8080/_ah/api/tinyinsta/v1/user/all' \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/user/find' \
   --header 'Accept: application/json' \
   --header 'Content-Type: application/json' \
   --compressed
