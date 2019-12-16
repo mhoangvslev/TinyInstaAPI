@@ -103,9 +103,8 @@ public class TinyInstaEndpoint {
 
         // When userId is filled, no need to do the rest
         if (userId != null) {
-            return Arrays.asList(
-                    new User[]{UserRepository.getInstance().getUserById(userId)}
-            );
+            User res = UserRepository.getInstance().getUserById(userId);
+            return res != null ? Arrays.asList(new User[]{res}) : null;
         }
 
         // When neither field are filled
@@ -352,9 +351,7 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "getPostsByUser", httpMethod = HttpMethod.GET, path = "user/{userId}/posts")
     public Collection<Post> getPostsByUser(
             @Named("userId") Long userId,
-            @Nullable
-            @Named("limit")
-            @DefaultValue("50") int limit
+            @Nullable @Named("limit") @DefaultValue("50") int limit
     ) {
         return PostRepository.getInstance().getPostsByUser(userId, limit);
     }
@@ -362,9 +359,7 @@ public class TinyInstaEndpoint {
     @ApiMethod(name = "getPostsByFollow", httpMethod = HttpMethod.GET, path = "post/followed/{userId}")
     public Collection<Post> getPostsByFollow(
             @Named("userId") Long userId,
-            @Nullable
-            @Named("limit")
-            @DefaultValue("50") int limit
+            @Nullable @Named("limit") @DefaultValue("50") int limit
     ) {
         User user = UserRepository.getInstance().getUserById(userId);
         if (user != null) {

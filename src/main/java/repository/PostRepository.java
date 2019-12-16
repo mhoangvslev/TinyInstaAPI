@@ -6,7 +6,6 @@ import com.googlecode.objectify.cmd.LoadType;
 import endpoint.TinyInstaEndpoint;
 import entity.Post;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.logging.Logger;
 import static repository.RepositoryService.*;
@@ -88,19 +87,15 @@ public class PostRepository extends RepositoryService {
 
     // GET
     public Collection<Post> getAllPost(int limit) {
-        return query().limit(limit).order("-date").list();
+        return query().order("-date").limit(limit).list();
     }
 
     public Post getPostById(Long id) {
         return (Post) query().id(id).now();
     }
 
-    public Collection<Post> getPostsByDate(Date date, int limit) {
-        return query().filter("date =", date).limit(limit).list();
-    }
-
     public Collection<Post> getPostsByUser(Long postedBy, int limit) {
-        return query().filter("postedBy =", postedBy).limit(limit).order("-date").list();
+        return query().filter("postedBy", postedBy.toString()).order("-date").limit(limit).list();
     }
 
     // DELETE

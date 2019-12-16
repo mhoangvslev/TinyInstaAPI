@@ -1,6 +1,7 @@
 
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.gson.Gson;
+import entity.Post;
 import entity.User;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -92,6 +93,9 @@ public class Benchmark {
     /**
      * Test 2: How much time it takes to retrieve the last 10, 100 and 500 last
      * messages ? (average of 30 measures)
+     * @param nbPost
+     * @return 
+     * @throws java.io.IOException
      */
     public static long testRecupPost(int nbPost) throws IOException {
 
@@ -220,7 +224,7 @@ public class Benchmark {
 
     public static String getNewsFeed(Long userId, int limit) throws IOException {
         URL url = new URL(
-                MessageFormat.format(getEndpoint() + "_ah/api/tinyinsta/v1/post/followed/{0}?limit={1}", userId, limit)
+                MessageFormat.format(getEndpoint() + "_ah/api/tinyinsta/v1/user/{0}/posts?limit={1}", userId, limit)
         );
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");

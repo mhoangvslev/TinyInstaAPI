@@ -121,7 +121,7 @@ public class ShardedCounter extends RepositoryService {
             long shardNum = generator.nextInt(numShards);
 
             Key shardKey = shardKey(shardName + shardNum);
-            CounterShard shard = (CounterShard) incrementPropTx(shardKey, -1L, 1L);
+            CounterShard shard = (CounterShard) incrementPropTx(shardKey, -1L, -1L);
             c.addShard(shard);
             logger.log(Level.INFO, "[DEBUG] Shard {0} decrements 1 count", shard.getName());
         }

@@ -23,10 +23,10 @@ public class Post {
     private HashSet<Long> likedBy = new HashSet<>();
 
     @Index
-    private Date date;
+    private Long postedBy;
 
     @Index
-    private Long postedBy;
+    private Date date;
 
     public Post() {
     }
