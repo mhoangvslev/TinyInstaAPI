@@ -104,7 +104,7 @@ public class Benchmark {
         }
 
         long startTime = new Date().getTime();
-        Benchmark.getNewsFeed(owner.getUserId(),nbPost);
+        Benchmark.getPosts(nbPost);
 
         long endTime = new Date().getTime();
         Benchmark.deleteAll();
@@ -221,6 +221,18 @@ public class Benchmark {
     public static String getNewsFeed(Long userId, int limit) throws IOException {
         URL url = new URL(
                 MessageFormat.format(getEndpoint() + "_ah/api/tinyinsta/v1/post/followed/{0}?limit={1}", userId, limit)
+        );
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Accept", "application/json");
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            return r.lines().collect(Collectors.joining(" "));
+        }
+    }
+
+    public static String getPosts(int limit) throws IOException{
+        URL url = new URL(
+                MessageFormat.format(getEndpoint() + "_ah/api/tinyinsta/v1/post/all/?limit={0}", limit)
         );
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
