@@ -70,3 +70,8 @@ curl --request DELETE \
   'http://localhost:8080/_ah/api/tinyinsta/v1/user/delete/all' \
   --header 'Accept: application/json' \
   --compressed
+
+curl \
+  'http://localhost:8080/_ah/api/tinyinsta/v1/benchmark/test1/100' \
+  --header 'Accept: application/json' \
+  --compressed

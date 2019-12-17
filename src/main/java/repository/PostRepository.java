@@ -71,29 +71,23 @@ public class PostRepository extends RepositoryService {
     }
 
     public void addToLikeCounter(Post p) {
-        transact(() -> {
-            String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
-            ShardedCounter counter = ShardedCounter.getShardedCounter(name);
+        String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
+        ShardedCounter counter = ShardedCounter.getShardedCounter(name);
 
-            if (p.getLikes() + 1 <= p.getLikedBy().size()) {
-                counter.increment();
-                p.setLikes(counter.getCount());
-            }
-            return null;
-        });
+        if (p.getLikes() + 1 <= p.getLikedBy().size()) {
+            counter.increment();
+            p.setLikes(counter.getCount());
+        }
     }
 
     public void removeFromLikeCounter(Post p) {
-        transact(() -> {
-            String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
-            ShardedCounter counter = ShardedCounter.getShardedCounter(name);
+        String name = PostRepository.LIKE_COUNTER_PREFIX + p.getPostId();
+        ShardedCounter counter = ShardedCounter.getShardedCounter(name);
 
-            if (p.getLikes() >= 1) {
-                counter.decrement();
-                p.setLikes(counter.getCount());
-            }
-            return null;
-        });
+        if (p.getLikes() >= 1) {
+            counter.decrement();
+            p.setLikes(counter.getCount());
+        }
     }
 
     // GET
@@ -133,10 +127,10 @@ public class PostRepository extends RepositoryService {
         Collection<Post> posts = query().list();
         Collection<Collection<?>> batches = batch(posts, 400);
 
-        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), posts.size()});
+        //logger.log(Level.INFO, "{0} batches of {1} posts", new Object[]{batches.size(), posts.size()});
         batches.forEach((batch) -> {
             Collection<Post> b = (Collection<Post>) batch;
-            logger.log(Level.INFO, "Batch with {0} users", b.size());
+            //logger.log(Level.INFO, "Batch with {0} posts", b.size());
 
             HashSet<Long> ids = new HashSet<>();
             HashSet<String> blobs = new HashSet<>();

@@ -221,7 +221,6 @@ public class TinyInstaEndpoint {
             UserRepository.getInstance().updateUser(user);
 
             //logger.log(Level.INFO, "[SUCCESS] User {0} follows User {1}", new Object[]{userId, targetId});
-
             return user;
         }
 
@@ -243,7 +242,6 @@ public class TinyInstaEndpoint {
             UserRepository.getInstance().updateUser(user);
 
             //logger.log(Level.INFO, "[SUCCESS] User {0} unfollows User {1}", new Object[]{userId, targetId});
-
             return user;
         }
 
@@ -334,7 +332,6 @@ public class TinyInstaEndpoint {
             @Named("imageURL") String imageURL,
             @Named("caption") String caption
     ) {
-        ////logger.log(Level.INFO, "Creating post {0}", data.stringify());
 
         User owner = UserRepository.getInstance().getUserById(ownerId);
         if (owner != null) {
@@ -490,6 +487,7 @@ public class TinyInstaEndpoint {
             totalTime += endTime - startTime;
         }
 
+        logger.log(Level.INFO, "[TEST] Test 1 results is {0}", totalTime / 30);
         return new TestResult(
                 "Test 1",
                 "How much time it takes to post of message if followed by 10, 100 and 500 followers? (average on 30 measures)",
@@ -513,6 +511,9 @@ public class TinyInstaEndpoint {
 
             // createUser
             User owner = register("username0", "name0", "avatar0");
+            User follower = register("username1", "name1", "avatar1");
+            
+            follow(follower.getUserId(), owner.getUserId());
 
             // Create posts
             for (int j = 1; j <= nbPost; j++) {
@@ -520,12 +521,14 @@ public class TinyInstaEndpoint {
             }
 
             long startTime = new Date().getTime();
-            getAllPosts(nbPost);
+            getPostsByFollow(follower.getUserId(), nbPost);
             long endTime = new Date().getTime();
 
             totalTime += endTime - startTime;
             deleteAllUsers();
         }
+
+        logger.log(Level.INFO, "[TEST] Test 2 results is {0}", totalTime / 30);
 
         return new TestResult(
                 "Test 2",
@@ -567,6 +570,9 @@ public class TinyInstaEndpoint {
             deleteAllUsers();
             totalTime += endTime - startTime;
         }
+
+        logger.log(Level.INFO, "[TEST] Test 3 results is {0}", totalTime / 30);
+
         return new TestResult(
                 "Test 3",
                 "How much “likes” can you do per second ?? (average on 30",

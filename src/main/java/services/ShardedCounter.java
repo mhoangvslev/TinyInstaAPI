@@ -61,14 +61,14 @@ public class ShardedCounter extends RepositoryService {
     private ShardedCounter(final String name) {
         this.name = name;
         this.shardName = SHARD_PREFIX + name + "#";
-        logger.log(Level.INFO, "Created a ShardedCounter object of name {0} with shardName = {1}", new Object[]{this.name, this.shardName});
+        //logger.log(Level.INFO, "Created a ShardedCounter object of name {0} with shardName = {1}", new Object[]{this.name, this.shardName});
     }
 
     public void addShards(final long count) {
         Counter cnt = new Counter(this.name);
         Key counterKey = save().entity(cnt).now();
 
-        logger.log(Level.INFO, "[DEBUG] Added {0} shards for Key({1}) {2}", new Object[]{count, counterKey.getKind(), counterKey.getName()});
+        //logger.log(Level.INFO, "[DEBUG] Added {0} shards for Key({1}) {2}", new Object[]{count, counterKey.getKind(), counterKey.getName()});
         incrementPropTx(counterKey, count, ShardedCounter.INITIAL_SHARDS + count);
     }
 
@@ -112,7 +112,7 @@ public class ShardedCounter extends RepositoryService {
             Key shardKey = shardKey(shardName + shardNum);
             CounterShard shard = (CounterShard) incrementPropTx(shardKey, 1L, 1L);
             c.addShard(shard);
-            logger.log(Level.INFO, "[DEBUG] Shard {0} increments 1 count", shard.getName());
+            //logger.log(Level.INFO, "[DEBUG] Shard {0} increments 1 count", shard.getName());
         }
     }
 
@@ -126,7 +126,7 @@ public class ShardedCounter extends RepositoryService {
             Key shardKey = shardKey(shardName + shardNum);
             CounterShard shard = (CounterShard) incrementPropTx(shardKey, -1L, -1L);
             c.addShard(shard);
-            logger.log(Level.INFO, "[DEBUG] Shard {0} decrements 1 count", shard.getName());
+            //logger.log(Level.INFO, "[DEBUG] Shard {0} decrements 1 count", shard.getName());
         }
     }
 
@@ -159,7 +159,7 @@ public class ShardedCounter extends RepositoryService {
                         cnt.setShardCount(init);
                     }
                     save().entity(cnt);
-                    logger.log(Level.INFO, "Counter {0} now has {1} shards", new Object[]{cnt.getName(), cnt.getShardCount()});
+                    //logger.log(Level.INFO, "Counter {0} now has {1} shards", new Object[]{cnt.getName(), cnt.getShardCount()});
                     return cnt;
                 });
 
@@ -168,14 +168,14 @@ public class ShardedCounter extends RepositoryService {
                     CounterShard shard = (CounterShard) query(key).now();
 
                     if (shard != null) {
-                        logger.log(Level.INFO, "[DEBUG] Shard {0} ({1}) of kind {2} has been retrived", new Object[]{key.getName(), shard.getCount(), key.getKind()});
+                        //logger.log(Level.INFO, "[DEBUG] Shard {0} ({1}) of kind {2} has been retrived", new Object[]{key.getName(), shard.getCount(), key.getKind()});
                         shard.setCount(shard.getCount() + amount);
                     } else {
                         shard = new CounterShard(key.getName());
                         shard.setCount(init);
                     }
                     save().entity(shard);
-                    logger.log(Level.INFO, "Shard {0} now has {1} counts", new Object[]{shard.getName(), shard.getCount().intValue()});
+                    //logger.log(Level.INFO, "Shard {0} now has {1} counts", new Object[]{shard.getName(), shard.getCount().intValue()});
                     return shard;
                 });
         }
@@ -193,7 +193,7 @@ public class ShardedCounter extends RepositoryService {
             sum = c.getShards().stream()
                     .map((shard) -> shard.getCount())
                     .reduce(sum, (accumulator, _item) -> accumulator + _item);
-            logger.log(Level.INFO, "[DEBUG] Counter {0} returns {1} counts", new Object[]{c.getName(), sum.intValue()});
+            //logger.log(Level.INFO, "[DEBUG] Counter {0} returns {1} counts", new Object[]{c.getName(), sum.intValue()});
         }
 
         return sum;
@@ -239,10 +239,10 @@ public class ShardedCounter extends RepositoryService {
         Collection<CounterShard> shards = query(CounterShard.class).list();
         Collection<Collection<?>> batches = batch(shards, 400);
 
-        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), shards.size()});
+        //logger.log(Level.INFO, "{0} batches of {1} shards", new Object[]{batches.size(), shards.size()});
         batches.forEach((batch) -> {
             Collection<CounterShard> b = (Collection<CounterShard>) batch;
-            logger.log(Level.INFO, "Batch with {0} users", b.size());
+            //logger.log(Level.INFO, "Batch with {0} shards", b.size());
             delete().entities(b).now();
         });
     }
@@ -251,10 +251,10 @@ public class ShardedCounter extends RepositoryService {
         Collection<Counter> counters = query(Counter.class).list();
         Collection<Collection<?>> batches = batch(counters, 400);
 
-        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), counters.size()});
+        //logger.log(Level.INFO, "{0} batches of {1} counters", new Object[]{batches.size(), counters.size()});
         batches.forEach((batch) -> {
             Collection<Counter> b = (Collection<Counter>) batch;
-            logger.log(Level.INFO, "Batch with {0} users", b.size());
+            //logger.log(Level.INFO, "Batch with {0} counters", b.size());
             delete().entities(b).now();
         });
     }

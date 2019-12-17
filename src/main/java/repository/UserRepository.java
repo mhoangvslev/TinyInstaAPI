@@ -114,24 +114,21 @@ public class UserRepository extends RepositoryService {
 
     // DELETE
     public void deleteUser(Long userId) {
-        transact(() -> {
-            User u = (User) query().id(userId).now();
-            if (u != null) {
-                ImageServlet.removeBlob(u.getAvatarURL());
-            }
-            delete().type(User.class).id(userId).now();
-            return null;
-        });
+        User u = (User) query().id(userId).now();
+        if (u != null) {
+            ImageServlet.removeBlob(u.getAvatarURL());
+        }
+        delete().type(User.class).id(userId).now();
     }
 
     public void deleteAll() {
         Collection<User> users = query().list();
         Collection<Collection<?>> batches = batch(users, 400);
 
-        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), users.size()});
+        //logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), users.size()});
         batches.forEach((batch) -> {
             Collection<User> b = (Collection<User>) batch;
-            logger.log(Level.INFO, "Batch with {0} users", b.size());
+            //logger.log(Level.INFO, "Batch with {0} users", b.size());
 
             HashSet<Long> ids = new HashSet<>();
             HashSet<String> blobs = new HashSet<>();
