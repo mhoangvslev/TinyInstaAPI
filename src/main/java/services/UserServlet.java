@@ -24,9 +24,9 @@ import endpoint.TinyInstaEndpoint;
 import entity.User;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -67,8 +67,19 @@ public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
+        if (req.getParameter("actionType").equals("find")) {
+            Collection<User> res = TinyInstaEndpoint.getInstance().findUser(null, req.getParameter("username"), req.getParameter("name"), Integer.parseInt(req.getParameter("limit")));
+
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            PrintWriter out = resp.getWriter();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(out, res);
+            out.flush();
+        }
+
+        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
         Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
         BlobKey avatarBlobKey = blobs.get("avatar").get(0);
 
@@ -93,12 +104,5 @@ public class UserServlet extends HttpServlet {
             //logger.log(Level.INFO, "Redirect to {0}", req.getHeader("referer"));
             resp.sendRedirect(req.getHeader("referer") + "#!/user/" + u.getUserId());
         }
-
-        /*resp.setContentType("application/json");
-        resp.setCharacterEncoding("UTF-8");
-        PrintWriter out = resp.getWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(out, u);
-        out.flush();*/
     }
 }

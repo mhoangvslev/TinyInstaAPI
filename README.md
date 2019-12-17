@@ -13,6 +13,8 @@
 - ```queries.sh```: commandes curl pour tester le endpoint
 - Endpoints Portal (sur demande): https://endpointsportal.tinyinstagram.cloud.goog/
 
+![](img/datastore.png)
+
 ## Benchmark
 ### **Test 1:** How much time it takes to post of message if followed by 10, 100 and 500 followers? (average on 30 measures)
 ```
