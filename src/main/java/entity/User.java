@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 @Cache
 @Entity
-public class User {
+public class User extends Object{
 
     @Id
     private Long userId;

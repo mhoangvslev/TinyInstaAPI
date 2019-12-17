@@ -20,6 +20,7 @@ import com.googlecode.objectify.ObjectifyService;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 import com.googlecode.objectify.TxnType;
 import endpoint.TinyInstaEndpoint;
+import endpoints.repackaged.com.google.common.base.Preconditions;
 import entity.Counter;
 import entity.CounterShard;
 import java.util.Collection;
@@ -57,7 +58,7 @@ public class ShardedCounter extends RepositoryService {
     private ShardedCounter() {
     }
 
-    private ShardedCounter(String name) {
+    private ShardedCounter(final String name) {
         this.name = name;
         this.shardName = SHARD_PREFIX + name + "#";
         logger.log(Level.INFO, "Created a ShardedCounter object of name {0} with shardName = {1}", new Object[]{this.name, this.shardName});
@@ -86,7 +87,7 @@ public class ShardedCounter extends RepositoryService {
         return result.intValue();
     }
 
-    private Key<CounterShard> shardKey(String name) {
+    private Key<CounterShard> shardKey(final String name) {
         Optional<Key<CounterShard>> q = ofy().load().type(CounterShard.class).keys().list().stream()
                 .filter((key) -> (key.getName().equals(name)))
                 .findFirst();
@@ -101,6 +102,8 @@ public class ShardedCounter extends RepositoryService {
 
     public final void increment() {
         Counter c = getCounter(name);
+
+        Preconditions.checkNotNull(c, shardName, 0, 0);
 
         if (c != null) {
             int numShards = getShardCount(c);
@@ -231,9 +234,33 @@ public class ShardedCounter extends RepositoryService {
             delete().type(Counter.class).id(name).now();
         }
     }
-    
-    public static void deleteAllCounter(){
-        delete().keys(query(CounterShard.class).keys());
-        delete().keys(query(Counter.class).keys());
+
+    public static void deleteAllShards() {
+        Collection<CounterShard> shards = query(CounterShard.class).list();
+        Collection<Collection<?>> batches = batch(shards, 400);
+
+        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), shards.size()});
+        batches.forEach((batch) -> {
+            Collection<CounterShard> b = (Collection<CounterShard>) batch;
+            logger.log(Level.INFO, "Batch with {0} users", b.size());
+            delete().entities(b).now();
+        });
+    }
+
+    public static void deleteAllCounter() {
+        Collection<Counter> counters = query(Counter.class).list();
+        Collection<Collection<?>> batches = batch(counters, 400);
+
+        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), counters.size()});
+        batches.forEach((batch) -> {
+            Collection<Counter> b = (Collection<Counter>) batch;
+            logger.log(Level.INFO, "Batch with {0} users", b.size());
+            delete().entities(b).now();
+        });
+    }
+
+    public static void deleteAll() {
+        deleteAllShards();
+        deleteAllCounter();
     }
 }

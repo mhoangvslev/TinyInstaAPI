@@ -18,8 +18,13 @@ package repository;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
+import endpoint.TinyInstaEndpoint;
 import entity.User;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static repository.RepositoryService.*;
 import services.ImageServlet;
 
@@ -30,6 +35,7 @@ import services.ImageServlet;
 public class UserRepository extends RepositoryService {
 
     private static UserRepository repo;
+    private static final Logger logger = Logger.getLogger(TinyInstaEndpoint.class.getName());
 
     static {
         ObjectifyService.register(User.class);
@@ -68,6 +74,11 @@ public class UserRepository extends RepositoryService {
             target.setUsername(update.getUsername());
             target.setFollowers(update.getFollowers());
             target.setFollowing(update.getFollowing());
+
+            if (!target.getAvatarURL().equals(update.getAvatarURL())) {
+                ImageServlet.removeBlob(target.getAvatarURL());
+            }
+
             target.setAvatarURL(update.getAvatarURL());
             save().entity(target).now();
             return target;
@@ -103,18 +114,35 @@ public class UserRepository extends RepositoryService {
 
     // DELETE
     public void deleteUser(Long userId) {
-        User u = (User) query().id(userId).now();
-        if (u != null) {
-            ImageServlet.removeBlob(u.getAvatarURL());
-        }
-        delete().type(User.class).id(userId).now();
+        transact(() -> {
+            User u = (User) query().id(userId).now();
+            if (u != null) {
+                ImageServlet.removeBlob(u.getAvatarURL());
+            }
+            delete().type(User.class).id(userId).now();
+            return null;
+        });
     }
 
     public void deleteAll() {
-        String[] blobNames = getAllUser(Integer.MAX_VALUE).stream()
-                .map((user) -> (user.getAvatarURL()))
-                .toArray(String[]::new);
-        ImageServlet.removeBlob(blobNames);
-        delete().keys(query().keys());
+        Collection<User> users = query().list();
+        Collection<Collection<?>> batches = batch(users, 400);
+
+        logger.log(Level.INFO, "{0} batches of {1} users", new Object[]{batches.size(), users.size()});
+        batches.forEach((batch) -> {
+            Collection<User> b = (Collection<User>) batch;
+            logger.log(Level.INFO, "Batch with {0} users", b.size());
+
+            HashSet<Long> ids = new HashSet<>();
+            HashSet<String> blobs = new HashSet<>();
+
+            b.forEach((user) -> {
+                ids.add(user.getUserId());
+                blobs.add(user.getAvatarURL());
+            });
+
+            ImageServlet.removeBlob(blobs.stream().toArray(String[]::new));
+            delete().type(User.class).ids(ids).now();
+        });
     }
 }

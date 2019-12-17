@@ -28,6 +28,8 @@ import entity.Counter;
 import entity.CounterShard;
 import entity.Post;
 import entity.User;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
@@ -42,32 +44,52 @@ public abstract class RepositoryService {
         ObjectifyService.register(Counter.class);
         ObjectifyService.register(CounterShard.class);
     }
-    
+
     private static Objectify ofy() {
         return ObjectifyService.ofy();
     }
-    
+
     public static LoadType query(Class<?> aClass) {
         return ofy().load().type(aClass);
     }
-    
+
     public static Saver save() {
         return ofy().save();
     }
-    
-    public LoadResult query(Key<?> k){
+
+    public LoadResult query(Key<?> k) {
         return ofy().load().key(k);
     }
 
     public static Deleter delete() {
         return ofy().delete();
     }
-    
-    public static Object transact(Work<?> work){
+
+    public static Object transact(Work<?> work) {
         return ofy().transact(work);
     }
-    
-    public static Object execute(TxnType transactionType, Work<?> work){
+
+    public static Object execute(TxnType transactionType, Work<?> work) {
         return ofy().execute(transactionType, work);
+    }
+
+    public static Collection<Collection<?>> batch(Collection<?> collection, int chunkSize) {
+        if (chunkSize <= 0) {
+            return null;  // just in case :)
+        }
+
+        ArrayList<?> target = new ArrayList<>(collection);
+
+        int rest = target.size() % chunkSize;
+        int chunks = target.size() / chunkSize + (rest > 0 ? 1 : 0);
+
+        Collection<Collection<?>> arrays = new ArrayList<>();
+        for (int i = 0; i < (rest > 0 ? chunks - 1 : chunks); i++) {
+            arrays.add(target.subList(i * chunkSize, i * chunkSize + chunkSize));
+        }
+        if (rest > 0) { // only when we have a rest
+            arrays.add(target.subList((chunks - 1) * chunkSize, (chunks - 1) * chunkSize + rest));
+        }
+        return arrays;
     }
 }

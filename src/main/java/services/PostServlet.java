@@ -66,8 +66,12 @@ public class PostServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
+        if (req.getParameter("ownerId") == null) {
+            resp.sendRedirect(req.getHeader("referer") + "#/post/" + req.getParameter("actionType"));
+        }
+
+        BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
         Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
         BlobKey imgBlobKey = blobs.get("imageURL").get(0);
 

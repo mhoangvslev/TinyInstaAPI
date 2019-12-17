@@ -44,6 +44,13 @@ public class ImageServlet extends HttpServlet {
     }
 
     @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET");
+        resp.setHeader("Access-Control-Allow-Headers", "*");
+    }
+
+    @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if (req.getParameter("blob-key") != null) {
 
@@ -51,6 +58,7 @@ public class ImageServlet extends HttpServlet {
             ImagesService imagesService = ImagesServiceFactory.getImagesService();
             String urlImage = imagesService.getServingUrl(ServingUrlOptions.Builder.withBlobKey(blobKey));
 
+            resp.setHeader("Access-Control-Allow-Origin", "*");
             resp.setContentType("text/plain");
             resp.setCharacterEncoding("UTF-8");
 
